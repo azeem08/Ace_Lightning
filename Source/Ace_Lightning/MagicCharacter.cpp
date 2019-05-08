@@ -121,16 +121,13 @@ void AMagicCharacter::SendAMessage( EMessage message, int value )
 	GameMode->ReadMessage();
 }
 
-void AMagicCharacter::ReadMessage( EMessage message )
+void AMagicCharacter::ReadMessage( EMessage message, int value )
 {
 	if ( message == EMessage::LootPickUp )
 	{
 		FXLootPickUp->Activate();
 	}
-}
 
-void AMagicCharacter::ReadMessage( EMessage message, int value )
-{
 	if ( message == EMessage::AbilityAvailable )
 	{
 		switch ( value )

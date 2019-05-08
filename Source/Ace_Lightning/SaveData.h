@@ -26,5 +26,8 @@ public:
 	float					MaxXP;
 	// what level the player is
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI )
-	int						CurrentLevel;	
+	int						CurrentLevel;
+	// how much gold the player has
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI )
+	int						GoldValue;
 };

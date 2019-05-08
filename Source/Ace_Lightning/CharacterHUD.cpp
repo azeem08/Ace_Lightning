@@ -85,9 +85,10 @@ void ACharacterHUD::Initialize()
 						if ( UIBasePointer )
 						{
 							UIBasePointer->SetProgressXP( LoadGameInstance->XP_Progress );
-							UIBasePointer->SetMaxXP( 1.f );
+							UIBasePointer->SetMaxXP( LoadGameInstance->MaxXP );
 							UIBasePointer->SetCurrentXP( LoadGameInstance->CurrentXP );
 							UIBasePointer->SetCurrentLevel( LoadGameInstance->CurrentLevel );
+							UIBasePointer->SetGoldAmount( LoadGameInstance->GoldValue );
 						}
 					}
 
@@ -189,6 +190,19 @@ void ACharacterHUD::ReadMessage( EMessage message )
 	}
 }
 
+void ACharacterHUD::ReadMessage( EMessage message, int value )
+{
+	if ( message == EMessage::LootPickUp )
+	{
+		int currentGold = UIBasePointer->GetGoldAmount();
+		currentGold += value;
+
+		UIBasePointer->SetGoldAmount( currentGold );
+
+		UpdateSaveData();
+	}
+}
+
 void ACharacterHUD::ReadMessage( EMessage message, float value )
 {
 	if ( message == EMessage::EnemyKilled )
@@ -198,11 +212,23 @@ void ACharacterHUD::ReadMessage( EMessage message, float value )
 		UIBasePointer->SetCurrentXP( currentXP );
 		float maxXP = UIBasePointer->GetMaxXP();
 		float progress_XP = currentXP / maxXP;
+		if ( maxXP > kFullValue )
+		{
+			float difference = maxXP - kFullValue;
+			if ( progress_XP >= difference )
+			{
+				progress_XP -= difference;
+			}
+			else
+			{
+				progress_XP -= 0.01f;
+			}
+		}
 		UIBasePointer->SetProgressXP( progress_XP );
 
-		if ( UIBasePointer->GetProgressXP() == kFullValue )
+		if ( UIBasePointer->GetProgressXP() >= kFullValue )
 		{
-			float currentLevel = UIBasePointer->GetCurrentLevel();
+			int currentLevel = UIBasePointer->GetCurrentLevel();
 			currentLevel++;
 			UIBasePointer->SetCurrentLevel( currentLevel );
 			UIBasePointer->SetLevelNotification( kFullValue, kFullValue, kFullValue, kFullValue );
@@ -214,12 +240,7 @@ void ACharacterHUD::ReadMessage( EMessage message, float value )
 			UIBasePointer->SetProgressXP( kEmptyValue );
 		}
 
-		USaveData* SaveGameInstance = Cast<USaveData>( UGameplayStatics::CreateSaveGameObject( USaveData::StaticClass() ) );
-		SaveGameInstance->XP_Progress = UIBasePointer->GetProgressXP();
-		SaveGameInstance->CurrentXP = UIBasePointer->GetCurrentXP();
-		SaveGameInstance->MaxXP = UIBasePointer->GetMaxXP();
-		SaveGameInstance->CurrentLevel = UIBasePointer->GetCurrentLevel();
-		UGameplayStatics::SaveGameToSlot( SaveGameInstance, "test", 0 );
+		UpdateSaveData();
 	}
 }
 
@@ -265,4 +286,15 @@ void ACharacterHUD::LevelUp()
 	{
 		GetWorldTimerManager().ClearTimer( NoManaTimer );
 	}
+}
+
+void ACharacterHUD::UpdateSaveData()
+{
+	USaveData* SaveGameInstance = Cast<USaveData>( UGameplayStatics::CreateSaveGameObject( USaveData::StaticClass() ) );
+	SaveGameInstance->XP_Progress = UIBasePointer->GetProgressXP();
+	SaveGameInstance->CurrentXP = UIBasePointer->GetCurrentXP();
+	SaveGameInstance->MaxXP = UIBasePointer->GetMaxXP();
+	SaveGameInstance->CurrentLevel = UIBasePointer->GetCurrentLevel();
+	SaveGameInstance->GoldValue = UIBasePointer->GetGoldAmount();
+	UGameplayStatics::SaveGameToSlot( SaveGameInstance, "test", 0 );
 }

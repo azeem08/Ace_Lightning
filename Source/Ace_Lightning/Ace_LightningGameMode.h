@@ -15,7 +15,7 @@ class AAce_LightningGameMode : public AGameModeBase
 public:
 											AAce_LightningGameMode();
 
-	// subclass of userwidget that displays the UI for a melee character
+	// subclass of userwidget that displays the character select screen
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = stats )
 	TSubclassOf<class UUserWidget>			MenuWidget;
 
@@ -43,6 +43,8 @@ private:
 	void									LoadMelee();
 	UFUNCTION()
 	void									LoadMagic();
+	UFUNCTION()
+	void									ClearSave();
 
 	// List of all senders and receivers
 	TArray< class Sender* >					ListOfSenders;
@@ -57,6 +59,8 @@ private:
 	class UButton*							MeleeButton;
 	// button to choose the magic character
 	class UButton*							MagicButton;
+	// button to reset save data
+	class UButton*							ResetButton;
 };
 
 

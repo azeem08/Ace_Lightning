@@ -10,6 +10,8 @@
 #include "Sender.h"
 #include "UObject/ConstructorHelpers.h"
 #include "UICharacterParent.h"
+#include "kismet/GameplayStatics.h"
+#include "SaveData.h"
 
 AAce_LightningGameMode::AAce_LightningGameMode()
 	: MenuWidget	( nullptr )
@@ -18,6 +20,7 @@ AAce_LightningGameMode::AAce_LightningGameMode()
 	, UIBasePointer	( nullptr )
 	, MeleeButton	( nullptr )
 	, MagicButton	( nullptr )
+	, ResetButton	( nullptr )
 {
 }
 
@@ -107,6 +110,17 @@ void AAce_LightningGameMode::BeginPlay()
 					MeleeButton->OnClicked.AddDynamic( this, &AAce_LightningGameMode::LoadMelee );
 				}
 
+				ResetButton = Cast<UButton>( UIBasePointer->GetResetButton() );
+
+				if ( !ResetButton )
+				{
+					UE_LOG( LogTemp, Warning, TEXT( "Couldn't find button for magic character" ) );
+				}
+				else
+				{
+					ResetButton->OnClicked.AddDynamic( this, &AAce_LightningGameMode::ClearSave );
+				}
+
 				OnScreenHUD->AddToViewport();
 
 				GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
@@ -143,6 +157,20 @@ void AAce_LightningGameMode::LoadMagic()
 
 	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = false;
 	OnScreenHUD->RemoveFromViewport();
+}
+
+void AAce_LightningGameMode::ClearSave()
+{
+	USaveData* LoadGameInstance = Cast<USaveData>( UGameplayStatics::CreateSaveGameObject( USaveData::StaticClass() ) );
+	LoadGameInstance = Cast<USaveData>( UGameplayStatics::LoadGameFromSlot( "test", 0 ) );
+
+	LoadGameInstance->XP_Progress = 0.f;
+	LoadGameInstance->MaxXP = 1.f;
+	LoadGameInstance->CurrentXP = 0.f;
+	LoadGameInstance->CurrentLevel = 1;
+	LoadGameInstance->GoldValue = 0;
+
+	UGameplayStatics::SaveGameToSlot( LoadGameInstance, "test", 0 );
 }
 
 void AAce_LightningGameMode::AddSender( Sender * sender )
@@ -232,30 +260,35 @@ void AAce_LightningGameMode::ReadMessage()
 				if ( nullptr != ListOfSenders[iSecondLoop] )
 				{
 					Message = ListOfSenders[iSecondLoop]->GetTheMessage();
-					int intValue = ListOfSenders[iSecondLoop]->GetIntValue();
-					float floatValue = ListOfSenders[iSecondLoop]->GetFloatValue();
-					FString stringValue = ListOfSenders[iSecondLoop]->GetTitleValue();
-					FString detailsValue = ListOfSenders[iSecondLoop]->GetDetailsValue();
 
-					if ( intValue > 0 )
+					if ( Message != EMessage::NoMessage )
 					{
-						// Calls the int value version
-						ListOfReceivers[iLoop]->ReadMessage( Message, intValue );
-					}
-					else if ( floatValue > 0 )
-					{
-						// Calls the float value version
-						ListOfReceivers[iLoop]->ReadMessage( Message, floatValue );
-					}
-					else if ( stringValue.Compare( "" ) != 0 )
-					{
-						// Calls the string value version
-						ListOfReceivers[iLoop]->ReadMessage( Message, stringValue, detailsValue );
-					}
-					else if( Message != EMessage::NoMessage )
-					{
-						// Loops through each receiver's and reads the message from the sender
-						ListOfReceivers[iLoop]->ReadMessage( Message );
+						int intValue = ListOfSenders[iSecondLoop]->GetIntValue();
+						float floatValue = ListOfSenders[iSecondLoop]->GetFloatValue();
+						FString stringValue = ListOfSenders[iSecondLoop]->GetTitleValue();
+
+						if ( intValue > 0 )
+						{
+							// Calls the int value version
+							ListOfReceivers[iLoop]->ReadMessage( Message, intValue );
+						}
+						else if ( floatValue > 0 )
+						{
+							// Calls the float value version
+							ListOfReceivers[iLoop]->ReadMessage( Message, floatValue );
+						}
+						else if ( stringValue.Compare( "" ) != 0 )
+						{
+							FString detailsValue = ListOfSenders[iSecondLoop]->GetDetailsValue();
+
+							// Calls the string value version
+							ListOfReceivers[iLoop]->ReadMessage( Message, stringValue, detailsValue );
+						}
+						else
+						{
+							// Loops through each receiver's and reads the message from the sender
+							ListOfReceivers[iLoop]->ReadMessage( Message );
+						}
 					}
 				}
 			}

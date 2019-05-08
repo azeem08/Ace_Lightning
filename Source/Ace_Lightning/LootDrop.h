@@ -28,6 +28,10 @@ public:
 	UPROPERTY( Category = Item, EditAnywhere )
 	class UStaticMeshComponent*					Mesh;
 
+	// Amount of gold the loot bag contains
+	UPROPERTY( Category = Item, EditAnywhere )
+	int											GoldValue;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void								BeginPlay() override;
@@ -36,8 +40,8 @@ private:
 	// Called every frame
 	virtual void								Tick( float DeltaTime ) override;
 
-	void										SendAMessage( EMessage message ) override;
-	void										SendAMessage( EMessage message, int value ) override {};
+	void										SendAMessage( EMessage message ) override {};
+	void										SendAMessage( EMessage message, int value ) override;
 	void										SendAMessage( EMessage message, float value ) override {};
 	virtual void								SendAMessage( EMessage message, FString title, FString details ) override {};
 	UFUNCTION()

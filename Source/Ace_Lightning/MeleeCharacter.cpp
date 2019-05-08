@@ -115,16 +115,13 @@ void AMeleeCharacter::SendAMessage( EMessage message, int value )
 	GameMode->ReadMessage();
 }
 
-void AMeleeCharacter::ReadMessage( EMessage message )
+void AMeleeCharacter::ReadMessage( EMessage message, int value )
 {
 	if ( message == EMessage::LootPickUp )
 	{
 		FXLootPickUp->Activate();
 	}
-}
 
-void AMeleeCharacter::ReadMessage( EMessage message, int value )
-{
 	if ( message == EMessage::AbilityAvailable )
 	{
 		switch ( value )

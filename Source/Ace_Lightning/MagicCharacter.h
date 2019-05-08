@@ -55,7 +55,7 @@ private:
 	virtual void								SendAMessage( EMessage message, int value ) override;
 	virtual void								SendAMessage( EMessage message, float value ) override {};
 	virtual void								SendAMessage( EMessage message, FString title, FString details ) override {};
-	virtual void								ReadMessage( EMessage message ) override;
+	virtual void								ReadMessage( EMessage message ) override {};
 	virtual void								ReadMessage( EMessage message, int value ) override;
 	virtual void								ReadMessage( EMessage message, float value ) override;
 	virtual void								ReadMessage( EMessage message, FString title, FString details ) override {};

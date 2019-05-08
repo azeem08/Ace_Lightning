@@ -12,6 +12,7 @@ ALootDrop::ALootDrop()
 	: FXItem			( nullptr )
 	, CollisionVolume	( nullptr )
 	, Mesh				( nullptr )
+	, GoldValue			( 25 )
 	, GameMode			( nullptr )
 {
 	CollisionVolume = CreateDefaultSubobject<UBoxComponent>( "Trigger Volume" );
@@ -63,10 +64,11 @@ void ALootDrop::Tick( float DeltaTime )
 
 }
 
-void ALootDrop::SendAMessage( EMessage message )
+void ALootDrop::SendAMessage( EMessage message, int value )
 {
 	// Sends a message to the game mode and each receiver reads the message
 	SetMessage( message );
+	SetIntValue( value );
 	GameMode->ReadMessage();
 }
 
@@ -78,7 +80,7 @@ void ALootDrop::OnOverlapBegin( AActor * overlappedActor, AActor * otherActor )
 		if ( otherActor->IsA( AAce_LightningCharacter::StaticClass() ) )
 		{
 			// Sends a message that a pickup has been collected and destroys the pickup
-			SendAMessage( EMessage::LootPickUp );
+			SendAMessage( EMessage::LootPickUp, GoldValue );
 			FXItem->Deactivate();
 			FXItem->KillParticlesForced();
 			Destroy();

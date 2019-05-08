@@ -37,6 +37,12 @@ public:
 	// what level the player is
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI )
 	int						CurrentLevel;
+	// how much gold the player has
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI )
+	int						GoldValue;
+	// gold text for binding to the UI
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI )
+	FText					GoldText;
 	// level text for binding to the UI
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI )
 	FText					Level;
@@ -91,7 +97,10 @@ public:
 	void					SetCurrentLevel( int newLevel );
 	float					GetAbilityCooldown( int ability ) const;
 	void					SetAbilityCooldown( int ability, float newCooldown );
+	int						GetGoldAmount() const;
+	void					SetGoldAmount( int newValue );
 
 private:
 	void					UpdateLevelText();
+	void					UpdateGoldText();
 };

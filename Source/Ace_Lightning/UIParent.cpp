@@ -200,7 +200,23 @@ void UUIParent::SetAbilityCooldown( int ability, float newCooldown )
 	}
 }
 
+int UUIParent::GetGoldAmount() const
+{
+	return GoldValue;
+}
+
+void UUIParent::SetGoldAmount( int newValue )
+{
+	GoldValue = newValue;
+	UpdateGoldText();
+}
+
 void UUIParent::UpdateLevelText()
 {
 	Level = FText::AsCultureInvariant( FString::FromInt( CurrentLevel ) );
+}
+
+void UUIParent::UpdateGoldText()
+{
+	GoldText = FText::AsCultureInvariant( FString::FromInt( GoldValue ) );
 }

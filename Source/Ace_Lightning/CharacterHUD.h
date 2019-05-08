@@ -64,13 +64,15 @@ private:
 	virtual void							SendAMessage( EMessage message, float value ) override {};
 	virtual void							SendAMessage( EMessage message, FString title, FString details ) override {};
 	virtual void							ReadMessage( EMessage message ) override;
-	virtual void							ReadMessage( EMessage message, int value ) override {};
+	virtual void							ReadMessage( EMessage message, int value ) override;
 	virtual void							ReadMessage( EMessage message, float value ) override;
 	virtual void							ReadMessage( EMessage message, FString title, FString details ) override;
 	// Slowly changes the alpha back to 0
 	void									ManaAvailable();
 	// Slowly changes the alpha back to 0
 	void									LevelUp();
+	// Updates the save data with new values
+	void									UpdateSaveData();
 
 	// Template that takes an actor and returns a pointer to the correct character type
 	template <class PlayerType>
