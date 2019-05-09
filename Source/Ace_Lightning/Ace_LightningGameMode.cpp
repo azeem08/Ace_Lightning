@@ -168,7 +168,7 @@ void AAce_LightningGameMode::ClearSave()
 	LoadGameInstance->MaxXP = 1.f;
 	LoadGameInstance->CurrentXP = 0.f;
 	LoadGameInstance->CurrentLevel = 1;
-	LoadGameInstance->GoldValue = 0;
+	LoadGameInstance->TotalGold = 0;
 
 	UGameplayStatics::SaveGameToSlot( LoadGameInstance, "test", 0 );
 }

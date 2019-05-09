@@ -65,6 +65,34 @@ void UUIParent::SetLevelNotification( float newRed, float newGreen, float newBlu
 	LevelUpNotification.A = newAlpha;
 }
 
+FLinearColor UUIParent::GetLootBag() const
+{
+	return LootBag;
+}
+
+void UUIParent::SetLootBag( float newRed, float newGreen, float newBlue, float newAlpha )
+{
+	LootBag.R = newRed;
+	LootBag.G = newGreen;
+	LootBag.B = newBlue;
+	LootBag.A = newAlpha;
+}
+
+UButton* UUIParent::GetCloseButton()
+{
+	return CloseButton;
+}
+
+ESlateVisibility UUIParent::GetVisibility() const
+{
+	return ButtonVisibility;
+}
+
+void UUIParent::SetVisibility( ESlateVisibility newVisibility )
+{
+	ButtonVisibility = newVisibility;
+}
+
 float UUIParent::GetSpecialProgress() const
 {
 	return SpecialProgress;
@@ -200,6 +228,17 @@ void UUIParent::SetAbilityCooldown( int ability, float newCooldown )
 	}
 }
 
+int UUIParent::GetTotalGold() const
+{
+	return TotalGold;
+}
+
+void UUIParent::SetTotalGold( int newValue )
+{
+	TotalGold = newValue;
+	UpdateGoldText();
+}
+
 int UUIParent::GetGoldAmount() const
 {
 	return GoldValue;
@@ -218,5 +257,6 @@ void UUIParent::UpdateLevelText()
 
 void UUIParent::UpdateGoldText()
 {
-	GoldText = FText::AsCultureInvariant( FString::FromInt( GoldValue ) );
+	TotalGoldText = FText::AsCultureInvariant( FString::FromInt( TotalGold ) );
+	GoldValueText = FText::AsCultureInvariant( FString::FromInt( GoldValue ) );
 }

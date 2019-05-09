@@ -73,6 +73,9 @@ private:
 	void									LevelUp();
 	// Updates the save data with new values
 	void									UpdateSaveData();
+	// Hides the loot bag 
+	UFUNCTION()
+	void									CloseLootBag();
 
 	// Template that takes an actor and returns a pointer to the correct character type
 	template <class PlayerType>
@@ -178,10 +181,14 @@ private:
 	AActor*									Player;
 	// widget object to display the UI
 	class UUserWidget*						OnScreenHUD;
+	// button to close the loot bag
+	class UButton*							CloseButton;
 	// pointer to the parent class
 	class UUIParent*						UIBasePointer;
 	// ability progress index
 	int										AbilityIndex;
+	// gold amount to add to the total
+	int										GoldValue;
 	// timer for when the no mana popup should vanish
 	FTimerHandle							NoManaTimer;
 	// a bool to check if the player was found in beginplay

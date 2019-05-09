@@ -3,6 +3,7 @@
 #include "CharacterHUD.h"
 #include "Ace_LightningGameMode.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Button.h"
 #include "Components/ProgressBar.h"
 #include "MagicCharacter.h"
 #include "MeleeCharacter.h"
@@ -18,7 +19,9 @@ ACharacterHUD::ACharacterHUD()
 	, AlphaRate		( 0.f )
 	, Player		( nullptr )
 	, OnScreenHUD	( nullptr )
+	, CloseButton	( nullptr )
 	, UIBasePointer	( nullptr )
+	, GoldValue		( 0 )
 {
 	CoolDownRates.SetNum( 10 );
 }
@@ -88,9 +91,21 @@ void ACharacterHUD::Initialize()
 							UIBasePointer->SetMaxXP( LoadGameInstance->MaxXP );
 							UIBasePointer->SetCurrentXP( LoadGameInstance->CurrentXP );
 							UIBasePointer->SetCurrentLevel( LoadGameInstance->CurrentLevel );
-							UIBasePointer->SetGoldAmount( LoadGameInstance->GoldValue );
+							UIBasePointer->SetTotalGold( LoadGameInstance->TotalGold );
 						}
 					}
+
+					CloseButton = Cast<UButton>( UIBasePointer->GetCloseButton() );
+
+					if ( !CloseButton )
+					{
+						UE_LOG( LogTemp, Warning, TEXT( "Couldn't find button for magic character" ) );
+					}
+					else
+					{
+						CloseButton->OnClicked.AddDynamic( this, &ACharacterHUD::CloseLootBag );
+					}
+
 
 					// Adds the widget to the viewport
 					OnScreenHUD->AddToViewport();
@@ -194,12 +209,14 @@ void ACharacterHUD::ReadMessage( EMessage message, int value )
 {
 	if ( message == EMessage::LootPickUp )
 	{
-		int currentGold = UIBasePointer->GetGoldAmount();
-		currentGold += value;
+		GoldValue = value;
+		UIBasePointer->SetGoldAmount( GoldValue );
 
-		UIBasePointer->SetGoldAmount( currentGold );
+		UIBasePointer->SetLootBag( kFullValue, kFullValue, kFullValue, kFullValue );
+		UIBasePointer->SetVisibility( ESlateVisibility::Visible );
 
-		UpdateSaveData();
+		GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
+		GetWorld()->GetFirstPlayerController()->SetPause( true );
 	}
 }
 
@@ -295,6 +312,23 @@ void ACharacterHUD::UpdateSaveData()
 	SaveGameInstance->CurrentXP = UIBasePointer->GetCurrentXP();
 	SaveGameInstance->MaxXP = UIBasePointer->GetMaxXP();
 	SaveGameInstance->CurrentLevel = UIBasePointer->GetCurrentLevel();
-	SaveGameInstance->GoldValue = UIBasePointer->GetGoldAmount();
+	SaveGameInstance->TotalGold = UIBasePointer->GetTotalGold();
 	UGameplayStatics::SaveGameToSlot( SaveGameInstance, "test", 0 );
+}
+
+void ACharacterHUD::CloseLootBag()
+{
+	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = false;
+
+	GetWorld()->GetFirstPlayerController()->SetPause( false );
+
+	UIBasePointer->SetLootBag( kFullValue, kFullValue, kFullValue, kEmptyValue );
+	UIBasePointer->SetVisibility( ESlateVisibility::Hidden );
+																	
+	int currentGold = UIBasePointer->GetTotalGold();
+	currentGold += GoldValue;
+
+	UIBasePointer->SetTotalGold( currentGold );
+
+	UpdateSaveData();
 }

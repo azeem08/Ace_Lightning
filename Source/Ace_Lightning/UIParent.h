@@ -39,10 +39,16 @@ public:
 	int						CurrentLevel;
 	// how much gold the player has
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI )
+	int						TotalGold;
+	// gold text for binding to the UI
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI )
+	FText					TotalGoldText;
+	// how much gold is in the loot bag
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI )
 	int						GoldValue;
 	// gold text for binding to the UI
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI )
-	FText					GoldText;
+	FText					GoldValueText;
 	// level text for binding to the UI
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI )
 	FText					Level;
@@ -52,6 +58,15 @@ public:
 	// Colour and opacity for level popup
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "UI" )
 	FLinearColor			LevelUpNotification;
+	// Colour and opacity for loot bag
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "UI" )
+	FLinearColor			LootBag;
+	// button to close the loot bag
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "UI", meta = ( BindWidget ) )
+	class UButton*			CloseButton;
+	// visibility state for the close button
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "UI" )
+	ESlateVisibility		ButtonVisibility;
 	// A bunch of floats for each ability's cool down progress
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "UI" )
 	float					Ability1Progress;
@@ -85,6 +100,11 @@ public:
 	void					SetManaNotification( float newRed, float newGreen, float newBlue, float newAlpha );
 	FLinearColor			GetLevelNotification() const;
 	void					SetLevelNotification( float newRed, float newGreen, float newBlue, float newAlpha );
+	FLinearColor			GetLootBag() const;
+	void					SetLootBag( float newRed, float newGreen, float newBlue, float newAlpha );
+	class UButton*			GetCloseButton();
+	ESlateVisibility		GetVisibility() const;
+	void					SetVisibility( ESlateVisibility newVisibility );
 	float					GetSpecialProgress() const;
 	void					SetSpecialProgress( float newMana );
 	float					GetProgressXP() const;
@@ -97,6 +117,8 @@ public:
 	void					SetCurrentLevel( int newLevel );
 	float					GetAbilityCooldown( int ability ) const;
 	void					SetAbilityCooldown( int ability, float newCooldown );
+	int						GetTotalGold() const;
+	void					SetTotalGold( int newValue );
 	int						GetGoldAmount() const;
 	void					SetGoldAmount( int newValue );
 
