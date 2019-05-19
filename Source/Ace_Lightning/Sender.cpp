@@ -3,8 +3,8 @@
 #include "Sender.h"
 
 Sender::Sender()
-	: Message		( EMessage::NoMessage )
-	, IntValue		( 0 )
+	//: Message		( EMessage::NoMessage )
+	: IntValue		( 0 )
 	, FloatValue	( 0.f )
 	, TitleValue	( "" )
 	, DetailsValue	( "" )
@@ -15,15 +15,15 @@ Sender::~Sender()
 {
 }
 
-EMessage Sender::GetTheMessage()
-{
-	return Message;
-}
+//EMessage Sender::GetTheMessage()
+//{
+//	return Message;
+//}
 
-void Sender::SetMessage( EMessage message )
-{
-	Message = message;
-}
+//void Sender::SetMessage( EMessage message )
+//{
+//	Message = message;
+//}
 
 int Sender::GetIntValue()
 {

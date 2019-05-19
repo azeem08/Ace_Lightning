@@ -3,28 +3,36 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UObject/ObjectMacros.h"
 
+#define GETENUMSTRING(etype, evalue) ( (FindObject<UEnum>(ANY_PACKAGE, TEXT(etype), true) != nullptr) ? FindObject<UEnum>(ANY_PACKAGE, TEXT(etype), true)->GetNameStringByIndex((int32)evalue) : FString("Invalid - are you sure enum uses UENUM() macro?") )
 /**
  * 
  */
 UENUM()
-enum class EMessage
+enum class EStats
 {
-	NoMessage,
-	IsJumping,
-	StoppedJumping,
-	AbilityAvailable,
-	AbilityNotAvailable,
-	NoSpecial,
-	CastAbility1,
-	StopAbility1,
-	CastAbility2,
-	StopAbility2,
-	LootPickUp,
-	HealthPickUp,
-	SpecialPickUp,
-	NewQuest,
-	EnemyKilled
+	Health,
+	Special,
+	Level,
+	Gold,
+	XP
+};
+
+UENUM()
+enum class EAbilities
+{
+	First,
+	Second,
+	Third,
+	Fourth,
+	Fifth,
+	Sixth,
+	Seventh,
+	Eighth,
+	Nineth,
+	Tenth,
+	Jumping
 };
 
 class ACE_LIGHTNING_API MessageClass

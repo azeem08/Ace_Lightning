@@ -5,11 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Ace_LightningGameMode.h"
-#include "Receiver.h"
 #include "Weapon_Sword.generated.h"
 
 UCLASS()
-class ACE_LIGHTNING_API AWeapon_Sword : public AActor, public Receiver
+class ACE_LIGHTNING_API AWeapon_Sword : public AActor
 {
 	GENERATED_BODY()
 
@@ -35,10 +34,12 @@ private:
 	// Called when the game starts or when spawned
 	virtual void								BeginPlay() override;
 
-	virtual void								ReadMessage( EMessage message ) override;
-	virtual void								ReadMessage( EMessage message, int value ) override {};
-	virtual void								ReadMessage( EMessage message, float value ) override {};
-	virtual void								ReadMessage( EMessage message, FString title, FString details ) override {};
+	// Delegate function for when an ability is active
+	UFUNCTION()
+	void										AbilityActive( EAbilities ability );
+	// Delegate function for when an ability is not active
+	UFUNCTION()
+	void										DeactiveAbility( EAbilities ability );
 
 	// pointer to the game mode
 	AAce_LightningGameMode*						GameMode;

@@ -1,13 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TestDummy.h"
+#include "Ace_LightningCharacter.h"
 #include "Components/CapsuleComponent.h"	
+#include "EnemyController.h"
 #include "kismet/GameplayStatics.h"
+#include "LootDrop.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Perception/PawnSensingComponent.h"
-#include "EnemyController.h"
 #include "TimerManager.h"
-#include "LootDrop.h"
 
 // Sets default values
 ATestDummy::ATestDummy()
@@ -25,10 +26,10 @@ ATestDummy::ATestDummy()
 	PrimaryActorTick.bCanEverTick = true;
 
 	CollisionVolume = CreateDefaultSubobject<UCapsuleComponent>( TEXT( "Collision Volume" ) );
-	CollisionVolume->AttachTo( RootComponent, "RightFoot" );
+	CollisionVolume->SetupAttachment( RootComponent, "RightFoot" );
 
 	FXDamage = CreateDefaultSubobject<UParticleSystemComponent>( TEXT( "VFX Damage" ) );
-	FXDamage->AttachTo( RootComponent, "RightFoot" );
+	FXDamage->SetupAttachment( RootComponent, "RightFoot" );
 	FXDamage->bAutoActivate = false;
 
 	PawnSensor = CreateDefaultSubobject<UPawnSensingComponent>( TEXT( "Pawn Sensor" ) );
@@ -47,8 +48,7 @@ void ATestDummy::BeginPlay()
 	}
 	else
 	{
-		GameMode->AddReceiver( this );
-		GameMode->AddSender( this );
+		GameMode->DeactivateEvent.AddDynamic( this, &ATestDummy::DeactiveAbility );
 	}
 
 	if ( !FXDamage )
@@ -137,7 +137,7 @@ void ATestDummy::Dead()
 	FXDamage->Deactivate();
 	FXDamage->KillParticlesForced();
 
-	SendAMessage( EMessage::EnemyKilled, XP );
+	GameMode->XP_Gained( XP );
 
 	// Spawns a loot drop at the dummy's location
 	FVector Location = ( RootComponent->GetSocketLocation( "foot_r" ) - FVector( 0.f, 0.f, kFloorHeight ) );
@@ -154,7 +154,7 @@ void ATestDummy::OnHearNoise( APawn * OtherActor, const FVector & Location, floa
 
 void ATestDummy::OnSeePawn( APawn* OtherPawn )
 {
-	bIsLookingAtPlayer = IsPlayer( OtherPawn );
+	bIsLookingAtPlayer = OtherPawn->IsA( AAce_LightningCharacter::StaticClass() );
 
 	if ( bIsLookingAtPlayer )
 	{
@@ -167,23 +167,31 @@ void ATestDummy::OnSeePawn( APawn* OtherPawn )
 	}
 }
 
-void ATestDummy::SendAMessage( EMessage message, float value )
+void ATestDummy::DeactiveAbility( EAbilities ability )
 {
-	SetMessage( message );
-	SetFloatValue( value );
-	GameMode->ReadMessage();
-}
-
-void ATestDummy::ReadMessage( EMessage message )
-{
-	if ( message == EMessage::StopAbility1 )
+	switch ( ability )
 	{
-		bIsOverlapping = false;
-	}
-
-	if ( message == EMessage::StopAbility2 )
-	{
-		bIsOverlapping = false;
+		case EAbilities::First:
+			bIsOverlapping = false;
+			break;
+		case EAbilities::Second:
+			bIsOverlapping = false;
+			break;
+		default:
+			break;
 	}
 }
+
+//void ATestDummy::ReadMessage( EMessage message )
+//{
+//	if ( message == EMessage::StopAbility1 )
+//	{
+//		bIsOverlapping = false;
+//	}
+//
+//	if ( message == EMessage::StopAbility2 )
+//	{
+//		bIsOverlapping = false;
+//	}
+//}
 

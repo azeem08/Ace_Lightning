@@ -14,22 +14,40 @@ class ACE_LIGHTNING_API UUICharacterParent : public UUserWidget
 {
 	GENERATED_BODY()
 
-public:
+private:
 	// public variables that are bound to the widget blueprint
 	// this allows it to be changed anywhere in code
-
 	// button to choose the melee character
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "UI", meta = ( BindWidget ) )
-	class UButton*			MeleeButton;
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UButton*							MeleeButton;
+	// text for the melee button
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UTextBlock*						MeleeText;
 	// button to choose the magic character
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "UI", meta = ( BindWidget ) )
-	class UButton*			MagicButton;
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UButton*							MagicButton;
+	// text for the magic button
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UTextBlock*						MagicText;
 	// button to reset save data
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "UI", meta = ( BindWidget ) )
-	class UButton*			ResetButton;
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UButton*							ResetButton;
+	// text for the reset button
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UTextBlock*						ResetText;
+	// magic character blueprint
+	UPROPERTY( Category = Stats, EditAnywhere )
+	TSubclassOf<class AMagicCharacter>		BP_MagicCharacter;
+	// melee character blueprint
+	UPROPERTY( Category = Stats, EditAnywhere )
+	TSubclassOf<class AMeleeCharacter>		BP_MeleeCharacter;
 
-	virtual void			NativeConstruct() override;
-	class UButton*			GetMeleeButton();
-	class UButton*			GetMagicButton();
-	class UButton*			GetResetButton();
+	virtual void							NativeConstruct() override;
+
+	UFUNCTION()
+	void									LoadMelee();
+	UFUNCTION()
+	void									LoadMagic();
+	UFUNCTION()
+	void									ClearSave();
 };

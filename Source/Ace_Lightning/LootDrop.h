@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Sender.h"
+#include "MessageClass.h"
 #include "LootDrop.generated.h"
 
 UCLASS()
-class ACE_LIGHTNING_API ALootDrop : public AActor, public Sender
+class ACE_LIGHTNING_API ALootDrop : public AActor
 {
 	GENERATED_BODY()
 
@@ -40,10 +40,6 @@ private:
 	// Called every frame
 	virtual void								Tick( float DeltaTime ) override;
 
-	void										SendAMessage( EMessage message ) override {};
-	void										SendAMessage( EMessage message, int value ) override;
-	void										SendAMessage( EMessage message, float value ) override {};
-	virtual void								SendAMessage( EMessage message, FString title, FString details ) override {};
 	UFUNCTION()
 	void										OnOverlapBegin( AActor * overlappedActor, AActor * otherActor );
 

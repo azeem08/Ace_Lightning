@@ -12,7 +12,7 @@ AWaypoint::AWaypoint()
 	RootComponent = scene;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>( TEXT( "Mesh" ) );
-	Mesh->AttachTo( RootComponent );
+	Mesh->SetupAttachment( RootComponent );
 }
 
 // Called when the game starts or when spawned

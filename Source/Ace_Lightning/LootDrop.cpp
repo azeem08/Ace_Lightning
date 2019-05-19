@@ -20,11 +20,11 @@ ALootDrop::ALootDrop()
 	CollisionVolume->SetRelativeScale3D( FVector( 3.f, 3.f, 3.f ) );
 
 	FXItem = CreateDefaultSubobject<UParticleSystemComponent>( TEXT( "VFX pick up" ) );
-	FXItem->AttachTo( RootComponent );
+	FXItem->SetupAttachment( RootComponent );
 	FXItem->bAutoActivate = true;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>( TEXT( "loot bag mesh" ) );
-	Mesh->AttachTo( RootComponent );
+	Mesh->SetupAttachment( RootComponent );
 	Mesh->bAutoActivate = true;
 }
 
@@ -43,8 +43,6 @@ void ALootDrop::BeginPlay()
 	{
 		UE_LOG( LogTemp, Error, TEXT( "No pointer to the game mode." ) );
 	}
-	// Registers this trigger as a message sender
-	GameMode->AddSender( this );
 
 	if ( !FXItem )
 	{
@@ -64,14 +62,6 @@ void ALootDrop::Tick( float DeltaTime )
 
 }
 
-void ALootDrop::SendAMessage( EMessage message, int value )
-{
-	// Sends a message to the game mode and each receiver reads the message
-	SetMessage( message );
-	SetIntValue( value );
-	GameMode->ReadMessage();
-}
-
 void ALootDrop::OnOverlapBegin( AActor * overlappedActor, AActor * otherActor )
 {
 	// Checks if the object is the target
@@ -80,7 +70,7 @@ void ALootDrop::OnOverlapBegin( AActor * overlappedActor, AActor * otherActor )
 		if ( otherActor->IsA( AAce_LightningCharacter::StaticClass() ) )
 		{
 			// Sends a message that a pickup has been collected and destroys the pickup
-			SendAMessage( EMessage::LootPickUp, GoldValue );
+			GameMode->LootBagCollected( GoldValue );
 			FXItem->Deactivate();
 			FXItem->KillParticlesForced();
 			Destroy();

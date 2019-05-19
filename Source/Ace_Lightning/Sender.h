@@ -13,7 +13,7 @@ class ACE_LIGHTNING_API Sender
 private:
 
 	// a variable to hold a message
-	EMessage		Message;
+	//EMessage		Message;
 	// int variable to pass along with the message
 	int				IntValue;
 	// float variable to pass along with the message
@@ -25,17 +25,17 @@ private:
 
 public:
 					Sender();
-					~Sender();
+	virtual			~Sender();
 
 	// Public function to send a message
-	virtual void	SendAMessage( EMessage message ) = 0;
-	virtual void	SendAMessage( EMessage message, int value ) = 0;
-	virtual void	SendAMessage( EMessage message, float value ) = 0;
-	virtual void	SendAMessage( EMessage message, FString title, FString details ) = 0;
+	//virtual void	SendAMessage( EMessage message ) = 0;
+	//virtual void	SendAMessage( EMessage message, int value ) = 0;
+	//virtual void	SendAMessage( EMessage message, float value ) = 0;
+	//virtual void	SendAMessage( EMessage message, FString title, FString details ) = 0;
 	// Returns the message for use with the event manager
-	EMessage		GetTheMessage();
+	//EMessage		GetTheMessage();
 	// Sets the message for use with the event manager
-	void			SetMessage( EMessage message );
+	//void			SetMessage( EMessage message );
 	// Returns the value of any ints that are needed with the message
 	int				GetIntValue();
 	// Sets the value of any ints that are needed with the message

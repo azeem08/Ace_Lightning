@@ -6,15 +6,11 @@
 #include "Ace_LightningGameMode.h"
 #include "GameFramework/Character.h"
 #include "MagicProjectile.h"   
-#include "MagicCharacter.h"
-#include "MeleeCharacter.h"
 #include "Weapon_Sword.h"
-#include "Receiver.h"
-#include "Sender.h"
 #include "TestDummy.generated.h"
 
 UCLASS()
-class ACE_LIGHTNING_API ATestDummy : public ACharacter, public Receiver, public Sender
+class ACE_LIGHTNING_API ATestDummy : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -64,15 +60,9 @@ private:
 	void										OnHearNoise( APawn *OtherActor, const FVector &Location, float Volume );
 	UFUNCTION()
 	void										OnSeePawn( APawn *OtherPawn );
-
-	virtual void								SendAMessage( EMessage message ) override {};
-	virtual void								SendAMessage( EMessage message, int value ) override {};
-	virtual void								SendAMessage( EMessage message, float value ) override;
-	virtual void								SendAMessage( EMessage message, FString title, FString details ) override {};
-	virtual void								ReadMessage( EMessage message ) override;
-	virtual void								ReadMessage( EMessage message, int value ) override {};
-	virtual void								ReadMessage( EMessage message, float value ) override {};
-	virtual void								ReadMessage( EMessage message, FString title, FString details ) override {};
+	// Delegate function for when an ability is not active
+	UFUNCTION()
+	void										DeactiveAbility( EAbilities ability );
 
 	// Template that takes an actor and returns a pointer to the correct character type
 	template <class ObjectType>
@@ -100,26 +90,8 @@ private:
 		return damage;
 	}
 
-	// Template that takes an actor and returns a bool if it is a player
-	template <class PlayerType>
-	bool IsPlayer( PlayerType* a )
-	{
-		bool player = false;
-
-		if ( a->IsA( AMeleeCharacter::StaticClass() ) )
-		{
-			player = true;
-		}
-		else if ( a->IsA( AMagicCharacter::StaticClass() ) )
-		{
-			player = true;
-		}
-
-		return player;
-	}
-
 	// pointer to the game mode
-	AAce_LightningGameMode*						GameMode;
+	class AAce_LightningGameMode*				GameMode;
 	// pointer to the controller class
 	class AEnemyController*						AIManager;
 	// death timer

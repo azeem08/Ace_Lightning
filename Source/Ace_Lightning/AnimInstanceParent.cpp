@@ -31,7 +31,8 @@ void UAnimInstanceParent::NativeInitializeAnimation()
 	}
 	else
 	{
-		GameMode->AddReceiver( this );
+		GameMode->Event_ActivateAbility.AddDynamic( this, &UAnimInstanceParent::StartAnimating );
+		GameMode->DeactivateEvent.AddDynamic( this, &UAnimInstanceParent::StopAnimating );
 	}
 }
 
@@ -108,10 +109,9 @@ void UAnimInstanceParent::ActivateAbility2( bool newValue )
 	bIsAbility2 = newValue;
 }
 
-//void UAnimInstanceParent::ReadMessage( FString message )
-void UAnimInstanceParent::ReadMessage( EMessage message )
+void UAnimInstanceParent::StartAnimating( EAbilities ability )
 {
-	if ( message == EMessage::IsJumping )
+	if ( ability == EAbilities::Jumping )
 	{
 		if ( !IsFalling() )
 		{
@@ -119,12 +119,7 @@ void UAnimInstanceParent::ReadMessage( EMessage message )
 		}
 	}
 
-	if ( message == EMessage::StoppedJumping )
-	{
-		SetFalling( false );
-	}
-
-	if ( message == EMessage::CastAbility1 )
+	if ( ability == EAbilities::First )
 	{
 		if ( !IsCastingAbility1() )
 		{
@@ -132,20 +127,28 @@ void UAnimInstanceParent::ReadMessage( EMessage message )
 		}
 	}
 
-	if ( message == EMessage::StopAbility1 )
-	{
-		ActivateAbility1( false );
-	}
-
-	if ( message == EMessage::CastAbility2 )
+	if ( ability == EAbilities::Second )
 	{
 		if ( !IsCastingAbility2() )
 		{
 			ActivateAbility2( true );
 		}
 	}
+}
 
-	if ( message == EMessage::StopAbility2 )
+void UAnimInstanceParent::StopAnimating( EAbilities ability )
+{
+	if ( ability == EAbilities::Jumping )
+	{
+		SetFalling( false );
+	}
+
+	if ( ability == EAbilities::First )
+	{
+		ActivateAbility1( false );
+	}
+
+	if ( ability == EAbilities::Second )
 	{
 		ActivateAbility2( false );
 	}

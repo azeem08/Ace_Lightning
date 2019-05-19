@@ -8,16 +8,15 @@
 /**
  *
  */
-
 class ACE_LIGHTNING_API Receiver
 {
 public:
 					Receiver();
-					~Receiver();
+	virtual			~Receiver();
 
 	// Reads the message and carries out the specific functions
-	virtual void	ReadMessage( EMessage message ) = 0;
-	virtual void	ReadMessage( EMessage message, int value ) = 0;
-	virtual void	ReadMessage( EMessage message, float value ) = 0;
-	virtual void	ReadMessage( EMessage message, FString title, FString details ) = 0;
+	//virtual void	ReadMessage( EMessage message ) = 0;
+	//virtual void	ReadMessage( EMessage message, int value ) = 0;
+	//virtual void	ReadMessage( EMessage message, float value ) = 0;
+	//virtual void	ReadMessage( EMessage message, FString title, FString details ) = 0;
 };

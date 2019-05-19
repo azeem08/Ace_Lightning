@@ -1,262 +1,341 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "UIParent.h"
+#include "Ace_LightningCharacter.h"
+#include "Ace_LightningGameMode.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"	
+#include "Components/Image.h"
+#include "Components/ProgressBar.h"
+#include "Components/TextBlock.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
+#include "SaveData.h"
+#include "TimerManager.h"
 
 void UUIParent::NativeConstruct()
 {
 	Super::NativeConstruct();
-}
 
-FString UUIParent::GetQuestTitle() const
-{
-	return QuestTitle;
-}
+	GameMode = Cast<AAce_LightningGameMode>( GetWorld()->GetAuthGameMode() );
+	GameMode->PickupEvent.AddDynamic( this, &UUIParent::PickUpCollected );
+	GameMode->XP_Event.AddDynamic( this, &UUIParent::GainXP );
+	GameMode->PopUpEvent.AddDynamic( this, &UUIParent::OutOfSpecial );
+	GameMode->LootBagEvent.AddDynamic( this, &UUIParent::LootCollected );
+	GameMode->Event_ActivateAbility.AddDynamic( this, &UUIParent::AbilityCooldown );
+	GameMode->SaveEvent.AddDynamic( this, &UUIParent::SaveGame );
+	GameMode->QuestEvent.AddDynamic( this, &UUIParent::QuestUpdate );
 
-void UUIParent::SetQuestTitle( FString newText )
-{
-	QuestTitle = newText;
-}
+	CloseButton->OnClicked.AddDynamic( this, &UUIParent::CloseLootBag );
 
-FString UUIParent::GetQuestDetails() const
-{
-	return QuestDetails;
-}
+	SpecialNotification->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
+	LevelUpNotification->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
 
-void UUIParent::SetQuestDetails( FString newText )
-{
-	QuestDetails = newText;
-}
+	Level2->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
 
-float UUIParent::GetHealthProgress() const
-{
-	return HealthProgress;
-}
+	LootBagBG->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
+	GoldLootBagIcon->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
+	GoldValueText->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
+	CloseButton->SetVisibility( ESlateVisibility::Hidden );
 
-void UUIParent::SetHealthProgress( float newHealth )
-{
-	HealthProgress = newHealth;
-}
-
-FLinearColor UUIParent::GetManaNotification() const
-{
-	return SpecialNotification;
-}
-
-void UUIParent::SetManaNotification( float newRed, float newGreen, float newBlue, float newAlpha )
-{
-	SpecialNotification.R = newRed;
-	SpecialNotification.G = newGreen;
-	SpecialNotification.B = newBlue;
-	SpecialNotification.A = newAlpha;
-}
-
-FLinearColor UUIParent::GetLevelNotification() const
-{
-	return LevelUpNotification;
-}
-
-void UUIParent::SetLevelNotification( float newRed, float newGreen, float newBlue, float newAlpha )
-{
-	LevelUpNotification.R = newRed;
-	LevelUpNotification.G = newGreen;
-	LevelUpNotification.B = newBlue;
-	LevelUpNotification.A = newAlpha;
-}
-
-FLinearColor UUIParent::GetLootBag() const
-{
-	return LootBag;
-}
-
-void UUIParent::SetLootBag( float newRed, float newGreen, float newBlue, float newAlpha )
-{
-	LootBag.R = newRed;
-	LootBag.G = newGreen;
-	LootBag.B = newBlue;
-	LootBag.A = newAlpha;
-}
-
-UButton* UUIParent::GetCloseButton()
-{
-	return CloseButton;
-}
-
-ESlateVisibility UUIParent::GetVisibility() const
-{
-	return ButtonVisibility;
-}
-
-void UUIParent::SetVisibility( ESlateVisibility newVisibility )
-{
-	ButtonVisibility = newVisibility;
-}
-
-float UUIParent::GetSpecialProgress() const
-{
-	return SpecialProgress;
-}
-
-void UUIParent::SetSpecialProgress( float newMana )
-{
-	SpecialProgress = newMana;
-}
-
-float UUIParent::GetProgressXP() const
-{
-	return XP_Progress;
-}
-
-void UUIParent::SetProgressXP( float newXP )
-{
-	XP_Progress = newXP;
-}
-
-float UUIParent::GetCurrentXP() const
-{
-	return CurrentXP;
-}
-
-void UUIParent::SetCurrentXP( float newXP )
-{
-	CurrentXP = newXP;
-}
-
-float UUIParent::GetMaxXP() const
-{
-	return MaxXP;
-}
-
-void UUIParent::SetMaxXP( float newXP )
-{
-	MaxXP = newXP;
-}
-
-int UUIParent::GetCurrentLevel() const
-{
-	return CurrentLevel;
-}
-
-void UUIParent::SetCurrentLevel( int newLevel )
-{
-	CurrentLevel = newLevel;
-	UpdateLevelText();
-}
-
-float UUIParent::GetAbilityCooldown( int ability ) const
-{
-	float cooldownRate = 0.f;
-
-	switch ( ability )
+	for ( int i = 0; i < CoolDownRates.Num(); ++i )
 	{
-		case 1:
-			cooldownRate = Ability1Progress;
-			break;
-		case 2:
-			cooldownRate = Ability2Progress;
-			break;
-		case 3:
-			cooldownRate = Ability3Progress;
-			break;
-		case 4:
-			cooldownRate = Ability4Progress;
-			break;
-		case 5:
-			cooldownRate = Ability5Progress;
-			break;
-		case 6:
-			cooldownRate = Ability6Progress;
-			break;
-		case 7:
-			cooldownRate = Ability7Progress;
-			break;
-		case 8:
-			cooldownRate = Ability8Progress;
-			break;
-		case 9:	  
-			cooldownRate = Ability9Progress;
-			break;
-		case 10:
-			cooldownRate = Ability10Progress;
-			break;
-		default:
-			cooldownRate = Ability1Progress;
-			break;
+		UProgressBar* ability = GetAbility( i );
+		ability->SetPercent( 1.f );
 	}
 
-	return cooldownRate;
+	Max_XP = kFullValue;
+	PlayerLevel = 1;
+
+	Player = Cast<AAce_LightningCharacter>( UGameplayStatics::GetPlayerCharacter( GetWorld(), 0 ) );
+
+	LoadGame();
 }
 
-void UUIParent::SetAbilityCooldown( int ability, float newCooldown )
+void UUIParent::NativeTick( const FGeometry &MyGeometry, float DeltaTime )
+{
+	Super::NativeTick( MyGeometry, DeltaTime );
+
+	if ( bFoundPlayer )
+	{
+		HealthBar->SetPercent( Player->CurrentHealth );
+		SpecialBar->SetPercent( Player->CurrentSpecial );
+
+		for ( int i = 0; i < CoolDownRates.Num(); i++ )
+		{
+			if ( GetAbility( i )->Percent < kFullValue )
+			{
+				// Updates the ability's cool down every frame
+				float currentCooldown = GetAbility( i )->Percent;
+				currentCooldown += ( DeltaTime * CoolDownRates[i] );
+				GetAbility( i )->SetPercent( currentCooldown );
+			}
+			else
+			{
+				bool bIsAbilityAvailable = Player->HasCooledDown( i );
+
+				if ( bIsAbilityAvailable )
+				{
+					// Sets the ability to be available	 
+					GameMode->AbilityAvailable( i );
+				}
+			}
+		}
+	}
+	else
+	{
+		Player = Cast<AAce_LightningCharacter>( UGameplayStatics::GetPlayerCharacter( GetWorld(), 0 ) );
+		bFoundPlayer = true;
+	}
+}
+
+void UUIParent::OutOfSpecial( EStats stats )
+{
+	specialAlpha = kFullValue;
+	SpecialNotification->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kFullValue ) );
+	GetWorld()->GetTimerManager().SetTimer( PopUpTimer, this, &UUIParent::NoSpecial, kAnimationTime, true );
+}
+
+void UUIParent::LootCollected( int value )
+{	
+	GoldValue = value;
+	GoldValueText->SetText( FText::AsCultureInvariant( FString::FromInt( GoldValue ) ) );
+	LootBagBG->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kFullValue ) );
+	GoldLootBagIcon->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kFullValue ) );
+	GoldValueText->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kFullValue ) );
+	CloseButton->SetVisibility( ESlateVisibility::Visible );
+	
+	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
+	GetWorld()->GetFirstPlayerController()->SetPause( true );
+}
+
+void UUIParent::CloseLootBag()
+{
+	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = false;
+	GetWorld()->GetFirstPlayerController()->SetPause( false );
+
+	LootBagBG->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
+	GoldLootBagIcon->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
+	GoldValueText->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
+	CloseButton->SetVisibility( ESlateVisibility::Hidden );
+
+	TotalGold += GoldValue;
+	TotalGoldText->SetText( FText::AsCultureInvariant( FString::FromInt( TotalGold ) ) );
+}
+
+void UUIParent::AbilityCooldown( EAbilities ability )
 {
 	switch ( ability )
 	{
-		case 1:
-			Ability1Progress = newCooldown;
+		case EAbilities::First:
+			Ability1->SetPercent( 0.f );
 			break;
-		case 2:
-			Ability2Progress = newCooldown;
+		case EAbilities::Second:
+			Ability2->SetPercent( 0.f );
 			break;
-		case 3:
-			Ability3Progress = newCooldown;
+		case EAbilities::Third:
+			Ability3->SetPercent( 0.f );
 			break;
-		case 4:
-			Ability4Progress = newCooldown;
+		case EAbilities::Fourth:
+			Ability4->SetPercent( 0.f );
 			break;
-		case 5:
-			Ability5Progress = newCooldown;
+		case EAbilities::Fifth:
+			Ability5->SetPercent( 0.f );
 			break;
-		case 6:
-			Ability6Progress = newCooldown;
+		case EAbilities::Sixth:
+			Ability6->SetPercent( 0.f );
 			break;
-		case 7:
-			Ability7Progress = newCooldown;
+		case EAbilities::Seventh:
+			Ability7->SetPercent( 0.f );
 			break;
-		case 8:
-			Ability8Progress = newCooldown;
+		case EAbilities::Eighth:
+			Ability8->SetPercent( 0.f );
 			break;
-		case 9:
-			Ability9Progress = newCooldown;
+		case EAbilities::Nineth:
+			Ability9->SetPercent( 0.f );
 			break;
-		case 10:
-			Ability10Progress = newCooldown;
+		case EAbilities::Tenth:
+			Ability10->SetPercent( 0.f );
 			break;
 		default:
-			Ability1Progress = newCooldown;
 			break;
 	}
 }
 
-int UUIParent::GetTotalGold() const
+void UUIParent::NoSpecial()
 {
-	return TotalGold;
+	float newAlpha = SpecialNotification->ColorAndOpacity.GetSpecifiedColor().A;
+
+	if ( newAlpha > kEmptyValue )
+	{
+		newAlpha -= AlphaRate;
+		SpecialNotification->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, newAlpha ) );
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer( PopUpTimer );
+	}
 }
 
-void UUIParent::SetTotalGold( int newValue )
+void UUIParent::LevelUp()
 {
-	TotalGold = newValue;
-	UpdateGoldText();
+	float newAlpha = LevelUpNotification->ColorAndOpacity.A;
+
+	if ( newAlpha > kEmptyValue )
+	{
+		newAlpha -= AlphaRate;
+		LevelUpNotification->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, newAlpha ) );
+		Level2->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, newAlpha ) );
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer( PopUpTimer );
+	}
 }
 
-int UUIParent::GetGoldAmount() const
+void UUIParent::LoadGame()
 {
-	return GoldValue;
+	if ( UGameplayStatics::DoesSaveGameExist( "Slot1", 0 ) )
+	{
+		SaveData = Cast<USaveData>( UGameplayStatics::LoadGameFromSlot( "Slot1", 0 ) );
+		ExperienceBar->SetPercent( SaveData->XP_Progress );
+		Max_XP = SaveData->MaxXP;
+		PlayerLevel = SaveData->CurrentLevel;
+		Level1->SetText( FText::AsCultureInvariant( FString::FromInt( PlayerLevel ) ) );
+		Level2->SetText( FText::AsCultureInvariant( FString::FromInt( PlayerLevel ) ) );
+		Level3->SetText( FText::AsCultureInvariant( FString::FromInt( PlayerLevel ) ) );
+		TotalGold = SaveData->TotalGold;
+		TotalGoldText->SetText( FText::AsCultureInvariant( FString::FromInt( TotalGold ) ) );
+	}
+	else
+	{
+		SaveData = Cast<USaveData>( UGameplayStatics::CreateSaveGameObject( USaveData::StaticClass() ) );
+	}
 }
 
-void UUIParent::SetGoldAmount( int newValue )
+void UUIParent::SaveGame()
 {
-	GoldValue = newValue;
-	UpdateGoldText();
+	if ( UGameplayStatics::DoesSaveGameExist( "Slot1", 0 ) )
+	{
+		SaveData = Cast<USaveData>( UGameplayStatics::LoadGameFromSlot( "Slot1", 0 ) );
+		SaveData->XP_Progress = ExperienceBar->Percent;
+		SaveData->MaxXP = Max_XP;
+		SaveData->CurrentLevel = PlayerLevel;
+		SaveData->TotalGold = TotalGold;
+
+		UGameplayStatics::SaveGameToSlot( SaveData, "Slot1", 0 );
+	}
+	else
+	{
+		UE_LOG( LogTemp, Error, TEXT( "No Save Data" ) );
+	}
 }
 
-void UUIParent::UpdateLevelText()
+void UUIParent::QuestUpdate( FString title, FString details )
 {
-	Level = FText::AsCultureInvariant( FString::FromInt( CurrentLevel ) );
+	QuestTitle = title;
+	QuestDetails = details;
 }
 
-void UUIParent::UpdateGoldText()
+UProgressBar* UUIParent::GetAbility( int index )
 {
-	TotalGoldText = FText::AsCultureInvariant( FString::FromInt( TotalGold ) );
-	GoldValueText = FText::AsCultureInvariant( FString::FromInt( GoldValue ) );
+	UProgressBar* ability = nullptr;
+
+	switch ( index )
+	{
+		 case 0:
+			 ability = Ability1;
+			 break;
+		 case 1:
+			 ability = Ability2;
+			 break;
+		 case 2:
+			 ability = Ability3;
+			 break;
+		 case 3:
+			 ability = Ability4;
+			 break;
+		 case 4:
+			 ability = Ability5;
+			 break;
+		 case 5:
+			 ability = Ability6;
+			 break;
+		 case 6:
+			 ability = Ability7;
+			 break;
+		 case 7:
+			 ability = Ability8;
+			 break;
+		 case 8:
+			 ability = Ability9;
+			 break;
+		 case 9:
+			 ability = Ability10;
+			 break;
+	}
+
+	return ability;
+}
+
+void UUIParent::PickUpCollected( EStats stats, float value )
+{
+	if ( stats == EStats::Health )
+	{
+		float percent = HealthBar->Percent;
+		percent += value;
+
+		if ( percent > 1.f )
+		{
+			percent = 1.f;
+		}
+
+		HealthBar->SetPercent( percent );
+	}
+	else
+	{
+		float percent = SpecialBar->Percent;
+		percent += value;
+
+		if ( percent > 1.f )
+		{
+			percent = 1.f;
+		}
+
+		SpecialBar->SetPercent( percent );
+	}
+}
+
+void UUIParent::GainXP( float value )
+{
+	float percent = ExperienceBar->Percent;
+	percent += value;
+
+	float currentProgress = percent / Max_XP;
+	if ( Max_XP > kFullValue )
+	{
+		float difference = Max_XP - kFullValue;
+		if ( currentProgress >= difference )
+		{
+			currentProgress -= difference;
+		}
+		else
+		{
+			currentProgress -= 0.01f;
+		}
+	}
+
+	if ( currentProgress >= kFullValue )
+	{
+		PlayerLevel++;
+		Level1->SetText( FText::AsCultureInvariant( FString::FromInt( PlayerLevel ) ) );
+		Level2->SetText( FText::AsCultureInvariant( FString::FromInt( PlayerLevel ) ) );
+		Level3->SetText( FText::AsCultureInvariant( FString::FromInt( PlayerLevel ) ) );
+		LevelUpNotification->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kFullValue ) );
+		GetWorld()->GetTimerManager().SetTimer( PopUpTimer, this, &UUIParent::LevelUp, kAnimationTime, true );
+		currentProgress = kEmptyValue;
+		Max_XP *= kXPModifier;
+	}
+
+	ExperienceBar->SetPercent( currentProgress );
 }

@@ -16,7 +16,7 @@ AWeapon_Sword::AWeapon_Sword()
 	Mesh->bAutoActivate = true;
 
 	CollisionVolume = CreateDefaultSubobject<UBoxComponent>( "Trigger Volume" );
-	CollisionVolume->AttachTo( Mesh );
+	CollisionVolume->SetupAttachment( RootComponent );
 }
 
 // Called when the game starts or when spawned
@@ -32,29 +32,33 @@ void AWeapon_Sword::BeginPlay()
 	}
 	else
 	{
-		GameMode->AddReceiver( this );
+		GameMode->Event_ActivateAbility.AddDynamic( this, &AWeapon_Sword::AbilityActive );
+		GameMode->DeactivateEvent.AddDynamic( this, &AWeapon_Sword::DeactiveAbility );
 	}
 
 	SetActorEnableCollision( false );
 }
 
-bool AWeapon_Sword::IsActive()
+void AWeapon_Sword::AbilityActive( EAbilities ability )
 {
-	return bIsActive;
-}
-
-void AWeapon_Sword::ReadMessage( EMessage message )
-{
-	if ( message == EMessage::CastAbility1 )
+	if ( ability == EAbilities::First )
 	{
 		SetActorEnableCollision( true );
 		bIsActive = true;
 	}
+}
 
-	if ( message == EMessage::StopAbility1 )
+void AWeapon_Sword::DeactiveAbility( EAbilities ability )
+{
+	if ( ability == EAbilities::First )
 	{
 		SetActorEnableCollision( false );
 		bIsActive = false;
 	}
+}
+
+bool AWeapon_Sword::IsActive()
+{
+	return bIsActive;
 }
 

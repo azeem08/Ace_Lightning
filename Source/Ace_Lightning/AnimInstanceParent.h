@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "Receiver.h"
+#include "MessageClass.h"
 #include "AnimInstanceParent.generated.h"
 
 /**
  *
  */
 UCLASS()
-class ACE_LIGHTNING_API UAnimInstanceParent : public UAnimInstance, public Receiver
+class ACE_LIGHTNING_API UAnimInstanceParent : public UAnimInstance
 {
 	GENERATED_BODY()
 
@@ -48,10 +48,11 @@ public:
 	bool								IsCastingAbility2();
 	void								ActivateAbility2( bool newValue );
 private:
-	virtual void						ReadMessage( EMessage message ) override;
-	virtual void						ReadMessage( EMessage message, int value ) override {};
-	virtual void						ReadMessage( EMessage message, float value ) override {};
-	virtual void						ReadMessage( EMessage message, FString title, FString details ) override {};
+	UFUNCTION()
+	void								StartAnimating( EAbilities ability );
+	// Delegate function for finishing an ability animation
+	UFUNCTION()
+	void								StopAnimating( EAbilities ability );
 
 	class AAce_LightningGameMode*		GameMode;
 	class AAce_LightningCharacter*		Player;

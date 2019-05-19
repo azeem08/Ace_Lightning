@@ -7,6 +7,16 @@
 #include "MessageClass.h"
 #include "Ace_LightningGameMode.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams( FPickupDelegate, EStats, stats, float, value );
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams( FQuestDelegate, FString, title, FString, details );
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FExperienceDelegate, float, value );
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FPopUpDelegate, EStats, stats );
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FLootBagDelegate, int, value );
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FActivateDelegate, EAbilities, ability );
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FStopDelegate, EAbilities, ability );
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FAvailabilityDelegate, int, ability );
+DECLARE_DYNAMIC_MULTICAST_DELEGATE( FSaveDelegate );
+
 UCLASS(minimalapi)
 class AAce_LightningGameMode : public AGameModeBase
 {
@@ -14,53 +24,80 @@ class AAce_LightningGameMode : public AGameModeBase
 
 public:
 											AAce_LightningGameMode();
+	// delegate for pickups
+	UPROPERTY( BlueprintAssignable, Category = Event )
+	FPickupDelegate							PickupEvent;
+
+	// delegate for quests
+	UPROPERTY( BlueprintAssignable, Category = Event )
+	FQuestDelegate							QuestEvent;
+
+	// delegate for xp gained
+	UPROPERTY( BlueprintAssignable, Category = Event )
+	FExperienceDelegate						XP_Event;
+
+	// delegate for no special popup
+	UPROPERTY( BlueprintAssignable, Category = Event )
+	FPopUpDelegate							PopUpEvent;
+
+	// delegate for loot bag pick up
+	UPROPERTY( BlueprintAssignable, Category = Event )
+	FLootBagDelegate						LootBagEvent;
+
+	// delegate for activating abilties
+	UPROPERTY( BlueprintAssignable, Category = Event )
+	FActivateDelegate						Event_ActivateAbility;
+
+	// delegate for deactivating abilties
+	UPROPERTY( BlueprintAssignable, Category = Event )
+	FStopDelegate							DeactivateEvent;
+
+	// delegate for checking availabilty of abilities
+	UPROPERTY( BlueprintAssignable, Category = Event )
+	FAvailabilityDelegate					AvailablityEvent;
+
+	// delegate for saving the game
+	UPROPERTY( BlueprintAssignable, Category = Event )
+	FSaveDelegate							SaveEvent;
 
 	// subclass of userwidget that displays the character select screen
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = stats )
 	TSubclassOf<class UUserWidget>			MenuWidget;
 
-	// magic character blueprint
-	UPROPERTY( Category = Stats, EditAnywhere )
-	TSubclassOf<class AMagicCharacter>		BP_MagicCharacter;
-
-	// melee character blueprint
-	UPROPERTY( Category = Stats, EditAnywhere )
-	TSubclassOf<class AMeleeCharacter>		BP_MeleeCharacter;
-
-	// Functions to register obects as senders and receivers and to manage their messages
-	void									AddSender( class Sender* sender );
-	void									RemoveSender( class Sender* sender );
-	void									AddReceiver( class Receiver* receiver );
-	void									RemoveReceiver( class Receiver* receiver );
-	void									ReadMessage();
-	void									ResetMessage();
+	// function to broadcast pickup event
+	UFUNCTION()
+	void									PickUpCollected( EStats stats, float value );
+	// function to broadcast quest event
+	UFUNCTION()
+	void									QuestUpdate( FString title, FString details );
+	// function to broadcast xp event
+	UFUNCTION()
+	void									XP_Gained( float value );
+	// function to broadcast popup events
+	UFUNCTION()
+	void									TriggerNotification( EStats stats );
+	// function to broadcast loot bag event
+	UFUNCTION()
+	void									LootBagCollected( int value );
+	// function to broadcast activated event
+	UFUNCTION()
+	void									ActivateAbility( EAbilities ability );
+	// function to broadcast stop event
+	UFUNCTION()
+	void									StopCasting( EAbilities ability );
+	// function to broadcast ability availability event
+	UFUNCTION()
+	void									AbilityAvailable( int ability );
+	// function to broadcast save event
+	UFUNCTION()
+	void									SaveGame();
 
 private:
 	// Called when the game starts or when spawned
 	virtual void							BeginPlay() override;
 
-	UFUNCTION()
-	void									LoadMelee();
-	UFUNCTION()
-	void									LoadMagic();
-	UFUNCTION()
-	void									ClearSave();
-
-	// List of all senders and receivers
-	TArray< class Sender* >					ListOfSenders;
-	TArray< class Receiver* >				ListOfReceivers;
-
-	EMessage								Message;
 	// widget object to display the UI
 	class UUserWidget*						OnScreenHUD;
-	// pointer to the UI base class
-	class UUICharacterParent*				UIBasePointer;
-	// button to choose the melee character
-	class UButton*							MeleeButton;
-	// button to choose the magic character
-	class UButton*							MagicButton;
-	// button to reset save data
-	class UButton*							ResetButton;
 };
 
 

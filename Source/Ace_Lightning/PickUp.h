@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Sender.h"
+#include "Ace_LightningGameMode.h"
 #include "PickUp.generated.h"
 
 UENUM()
@@ -15,16 +15,16 @@ enum class EPickUpType
 };
 
 UCLASS()
-class ACE_LIGHTNING_API APickUp : public AActor, public Sender
+class ACE_LIGHTNING_API APickUp : public AActor
 {
 	GENERATED_BODY()
 
-public:
+public:												   
 	// Sets default values for this actor's properties
 	APickUp();
 
 	// The actor that the trigger volume is looking for
-	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = Trigger )
+	UPROPERTY( Category = Effect, EditAnywhere )
 	EPickUpType									CurrentType;
 
 	// pickup VFX
@@ -43,10 +43,6 @@ private:
 	// Called when the game starts or when spawned
 	virtual void								BeginPlay() override;
 
-	void										SendAMessage( EMessage message ) override {};
-	void										SendAMessage( EMessage message, int value ) override {};
-	void										SendAMessage( EMessage message, float value ) override;
-	virtual void								SendAMessage( EMessage message, FString title, FString details ) override {};
 	UFUNCTION()
 	void										OnOverlapBegin( AActor * overlappedActor, AActor * otherActor );
 
@@ -73,6 +69,6 @@ private:
 	class AAce_LightningGameMode*				GameMode;
 	// The actor that the trigger volume is looking for
 	AActor*										TargetActor;
-	// string to hold the message
-	EMessage									Message;
+	// The players stat which should change
+	EStats										SType;
 };

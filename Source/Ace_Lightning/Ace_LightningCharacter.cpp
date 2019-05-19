@@ -1,12 +1,14 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
 #include "Ace_LightningCharacter.h"
+#include "Ace_LightningGameMode.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
-#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AAce_LightningCharacter
@@ -14,11 +16,14 @@
 AAce_LightningCharacter::AAce_LightningCharacter()
 	: CurrentHealth			( 0.5f )
 	, HealthRegenRate		( 1.f )
+	, CurrentSpecial		( 0.5f )
 	, FXHealthPickUp		( nullptr )
+	, FXSpecialPickUp		( nullptr )
 	, FXLootPickUp			( nullptr )
 	, GameMode				( nullptr )
 	, bHasFinishedAnimating	( true )
 	, MaxHealth				( 1.f )
+	, MaxSpecial			( 1.f )
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -50,11 +55,15 @@ AAce_LightningCharacter::AAce_LightningCharacter()
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	FXHealthPickUp = CreateDefaultSubobject<UParticleSystemComponent>( TEXT( "VFX Health pick up" ) );
-	FXHealthPickUp->AttachTo( RootComponent, "RightFoot" );
+	FXHealthPickUp->SetupAttachment( RootComponent, "RightFoot" );
 	FXHealthPickUp->bAutoActivate = false;
 
+	FXSpecialPickUp = CreateDefaultSubobject<UParticleSystemComponent>( TEXT( "VFX Special pick up" ) );
+	FXSpecialPickUp->SetupAttachment( RootComponent, "RightFoot" );
+	FXSpecialPickUp->bAutoActivate = false;
+
 	FXLootPickUp = CreateDefaultSubobject<UParticleSystemComponent>( TEXT( "VFX Loot pick up" ) );
-	FXLootPickUp->AttachTo( RootComponent, "RightFoot" );
+	FXLootPickUp->SetupAttachment( RootComponent, "RightFoot" );
 	FXLootPickUp->bAutoActivate = false;
 
 	PrimaryActorTick.bCanEverTick = true;
@@ -126,9 +135,30 @@ void AAce_LightningCharacter::BeginPlay()
 
 	GameMode = Cast<AAce_LightningGameMode>( GetWorld()->GetAuthGameMode() );
 
+	if ( !GameMode )
+	{
+		UE_LOG( LogTemp, Warning, TEXT( "No game mode pointer" ) );
+	}
+	else
+	{
+		GameMode->PickupEvent.AddDynamic( this, &AAce_LightningCharacter::PickUpCollected );
+		GameMode->AvailablityEvent.AddDynamic( this, &AAce_LightningCharacter::AbilityAvailable );
+		GameMode->LootBagEvent.AddDynamic( this, &AAce_LightningCharacter::LootBagCollected );
+
+		for ( int i = 0; i < 10; ++i )
+		{
+			GameMode->AbilityAvailable( i );
+		}
+	}
+	
 	if ( !FXHealthPickUp )
 	{
 		UE_LOG( LogTemp, Warning, TEXT( "No heal pick up VFX added" ) );
+	}
+
+	if ( !FXSpecialPickUp )
+	{
+		UE_LOG( LogTemp, Warning, TEXT( "No mana/stamina pick up VFX added" ) );
 	}
 
 	if ( !FXLootPickUp )
@@ -157,6 +187,46 @@ void AAce_LightningCharacter::Tick( float DeltaTime )
 			CurrentHealth = MaxHealth;
 		}
 	}
+
+	if ( CurrentSpecial < MaxSpecial )
+	{
+		CurrentSpecial += ( DeltaTime * SpecialRegenRate );
+
+		if ( CurrentSpecial > MaxSpecial )
+		{
+			CurrentSpecial = MaxSpecial;
+		}
+	}
+
+	if ( MovementComponent->IsFalling() )
+	{
+		if ( !bHasSentMessage )
+		{
+			GameMode->ActivateAbility( EAbilities::Jumping );
+			bHasSentMessage = true;
+		}
+	}
+	else
+	{
+		if ( bHasSentMessage )
+		{
+			GameMode->StopCasting( EAbilities::Jumping );
+			bHasSentMessage = false;
+		}
+	}
+}
+
+void AAce_LightningCharacter::Ability1()
+{
+}
+
+void AAce_LightningCharacter::Ability2()
+{
+}
+
+void AAce_LightningCharacter::SaveGame()
+{
+	GameMode->SaveGame();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -168,6 +238,9 @@ void AAce_LightningCharacter::SetupPlayerInputComponent(class UInputComponent* P
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction( "Save", IE_Pressed, this, &AAce_LightningCharacter::SaveGame );
+	PlayerInputComponent->BindAction( "Ability1", IE_Pressed, this, &AAce_LightningCharacter::Ability1 );
+	PlayerInputComponent->BindAction( "Ability2", IE_Pressed, this, &AAce_LightningCharacter::Ability2 );
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AAce_LightningCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AAce_LightningCharacter::MoveRight);
@@ -220,4 +293,79 @@ void AAce_LightningCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void AAce_LightningCharacter::PickUpCollected( EStats stats, float value )
+{
+	if ( stats == EStats::Health )
+	{
+		if ( CurrentHealth < MaxHealth )
+		{
+			CurrentHealth += value;
+			FXHealthPickUp->Activate();
+
+			if ( CurrentHealth > MaxHealth )
+			{
+				CurrentHealth = MaxHealth;
+			}
+		}
+	}
+	else
+	{
+		if ( CurrentSpecial < MaxSpecial )
+		{
+			CurrentSpecial += value;
+			FXSpecialPickUp->Activate();
+
+			if ( CurrentSpecial > MaxSpecial )
+			{
+				CurrentSpecial = MaxSpecial;
+			}
+		}
+	}
+}
+
+void AAce_LightningCharacter::AbilityAvailable( int ability )
+{
+	switch ( ability )
+	{
+		case 1:
+			bAbilityHasCooledDown[0] = true;
+			break;
+		case 2:
+			bAbilityHasCooledDown[1] = true;
+			break;
+		case 3:
+			bAbilityHasCooledDown[2] = true;
+			break;
+		case 4:
+			bAbilityHasCooledDown[3] = true;
+			break;
+		case 5:
+			bAbilityHasCooledDown[4] = true;
+			break;
+		case 6:
+			bAbilityHasCooledDown[5] = true;
+			break;
+		case 7:
+			bAbilityHasCooledDown[6] = true;
+			break;
+		case 8:
+			bAbilityHasCooledDown[7] = true;
+			break;
+		case 9:
+			bAbilityHasCooledDown[8] = true;
+			break;
+		case 10:
+			bAbilityHasCooledDown[9] = true;
+			break;
+		default:
+			bAbilityHasCooledDown[0] = true;
+			break;
+	}
+}
+
+void AAce_LightningCharacter::LootBagCollected( int value )
+{
+	FXLootPickUp->Activate();
 }

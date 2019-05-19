@@ -20,7 +20,7 @@ AMagicProjectile::AMagicProjectile()
 	RootComponent = Collider;
 
 	FXProjectile = CreateDefaultSubobject<UParticleSystemComponent>( TEXT( "VFX Projectile" ) );
-	FXProjectile->AttachTo( RootComponent );
+	FXProjectile->SetupAttachment( RootComponent );
 
 	Movement = CreateAbstractDefaultSubobject<UProjectileMovementComponent>( TEXT( "Movement" ) );
 	Movement->ProjectileGravityScale = 0.f;

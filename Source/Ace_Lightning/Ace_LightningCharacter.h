@@ -2,11 +2,9 @@
 
 #pragma once
 
-#include "Ace_LightningGameMode.h"
 #include "CoreMinimal.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
-#include "Particles/ParticleSystemComponent.h"
+#include "MessageClass.h"
 #include "TimerManager.h"
 #include "Ace_LightningCharacter.generated.h"
 
@@ -42,9 +40,21 @@ public:
 	UPROPERTY( Category = Stats, EditAnywhere )
 	float										HealthRegenRate;
 
+	// special value
+	UPROPERTY( Category = Stats, EditAnywhere )
+	float										CurrentSpecial;
+
+	// special regen rate
+	UPROPERTY( Category = Stats, EditAnywhere )
+	float										SpecialRegenRate;
+
 	// Health pickup particle system
 	UPROPERTY( Category = FX, EditAnywhere )
 	class UParticleSystemComponent*				FXHealthPickUp;
+
+	// Stamina pickup particle system
+	UPROPERTY( Category = Stats, EditAnywhere )
+	class UParticleSystemComponent*				FXSpecialPickUp;
 
 	// Loot pickup particle system
 	UPROPERTY( Category = FX, EditAnywhere )
@@ -77,18 +87,34 @@ protected:
 
 	virtual void								BeginPlay();
 	virtual void								Tick( float DeltaTime );
+	virtual void								Ability1();
+	virtual void								Ability2();
+	void										SaveGame();
+
+	// Delegate function for when a pickup is collected
+	UFUNCTION()
+	void										PickUpCollected( EStats stats, float value );
+	// Delegate function for when an ability is available
+	UFUNCTION()
+	void										AbilityAvailable( int ability );
+	// Delegate function for when the loot bag is picked up
+	UFUNCTION()
+	void										LootBagCollected( int value );
 
 	// pointer to the game mode
-	AAce_LightningGameMode*						GameMode;
+	class AAce_LightningGameMode*				GameMode;
 	// pointer to the movement component
-	UCharacterMovementComponent*				MovementComponent;
+	class UCharacterMovementComponent*			MovementComponent;
 	// Array of bools to check if ability has cooled down
 	TArray<bool>								bAbilityHasCooledDown;
 	// Check if the character attack animation has finished
 	bool										bHasFinishedAnimating;
+	// checks if the message has already been sent
+	bool										bHasSentMessage;
 	// value representing full health
 	float										MaxHealth;
-
+	// value representing full mana/stamina
+	float										MaxSpecial;
 	// empty value should never have to change
 	const float									kEmptyValue = 0.f;
 
