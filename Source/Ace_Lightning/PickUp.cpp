@@ -1,10 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PickUp.h"	
+#include "Ace_LightningCharacter.h"
 #include "Components/BoxComponent.h"
-#include "kismet/GameplayStatics.h"
-#include "MagicCharacter.h"
-#include "MeleeCharacter.h"
 #include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
@@ -13,7 +11,6 @@ APickUp::APickUp()
 	, CollisionVolume	( nullptr )
 	, PickUpValue		( 0.2f )
 	, GameMode			( nullptr )
-	, TargetActor		( nullptr )
 {
 	CollisionVolume = CreateDefaultSubobject<UBoxComponent>( "Trigger Volume" );
 	RootComponent = CollisionVolume;
@@ -58,10 +55,8 @@ void APickUp::BeginPlay()
 
 void APickUp::OnOverlapBegin( AActor* overlappedActor, AActor* otherActor )
 {
-	TargetActor = GetPlayerType( UGameplayStatics::GetPlayerCharacter( GetWorld(), 0 ) );
-
 	// Checks if the object is the target
-	if ( otherActor && ( otherActor != this ) && otherActor == TargetActor )
+	if ( otherActor && ( otherActor != this ) && otherActor->IsA( AAce_LightningCharacter::StaticClass() ) )
 	{
 		// Sends a message that a pickup has been collected and destroys the pickup
 		GameMode->PickUpCollected( SType, PickUpValue );

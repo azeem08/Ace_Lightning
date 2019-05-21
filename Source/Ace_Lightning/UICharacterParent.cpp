@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "UICharacterParent.h"
+#include "Ace_LightningGameMode.h"
 #include "Components/Button.h"	
 #include "Components/TextBlock.h"
 #include "kismet/GameplayStatics.h"
@@ -22,6 +23,14 @@ void UUICharacterParent::NativeConstruct()
 		UE_LOG( LogTemp, Error, TEXT( "Missing blueprint instance of melee character" ) );
 	}
 
+	// Gets a pointer to the game mode which acts as the messaging system
+	GameMode = Cast<AAce_LightningGameMode>( GetWorld()->GetAuthGameMode() );
+
+	if ( !GameMode )
+	{
+		UE_LOG( LogTemp, Error, TEXT( "No pointer to the game mode." ) );
+	}
+
 	MeleeButton->OnClicked.AddDynamic( this, &UUICharacterParent::LoadMelee );
 	MagicButton->OnClicked.AddDynamic( this, &UUICharacterParent::LoadMagic );
 	ResetButton->OnClicked.AddDynamic( this, &UUICharacterParent::ClearSave );
@@ -38,6 +47,7 @@ void UUICharacterParent::LoadMelee()
 	APlayerController* playerController = GetWorld()->GetFirstPlayerController();
 	playerController->Possess( player );
 
+	GameMode->StartGame();
 	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = false;
 	RemoveFromViewport();
 }
@@ -53,6 +63,7 @@ void UUICharacterParent::LoadMagic()
 	APlayerController* playerController = GetWorld()->GetFirstPlayerController();
 	playerController->Possess( player );
 
+	GameMode->StartGame();
 	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = false;
 	RemoveFromViewport();
 }

@@ -29,6 +29,9 @@ private:
 	// text for the magic button
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
 	class UTextBlock*						MagicText;
+	// 2D capture render
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UImage*							CharacterRenders;
 	// button to reset save data
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
 	class UButton*							ResetButton;
@@ -50,4 +53,7 @@ private:
 	void									LoadMagic();
 	UFUNCTION()
 	void									ClearSave();
+
+	// pointer to messaging system
+	class AAce_LightningGameMode*				GameMode;
 };

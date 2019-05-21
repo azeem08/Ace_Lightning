@@ -1,5 +1,4 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #include "UIParent.h"
 #include "Ace_LightningCharacter.h"
 #include "Ace_LightningGameMode.h"
@@ -25,18 +24,18 @@ void UUIParent::NativeConstruct()
 	GameMode->Event_ActivateAbility.AddDynamic( this, &UUIParent::AbilityCooldown );
 	GameMode->SaveEvent.AddDynamic( this, &UUIParent::SaveGame );
 	GameMode->QuestEvent.AddDynamic( this, &UUIParent::QuestUpdate );
+	GameMode->InventoryEvent.AddDynamic( this, &UUIParent::ShowInventory );
+	GameMode->ItemEvent.AddDynamic( this, &UUIParent::ItemCollected );
 
 	CloseButton->OnClicked.AddDynamic( this, &UUIParent::CloseLootBag );
+	CloseInventoryButton->OnClicked.AddDynamic( this, &UUIParent::CloseInventory );
 
 	SpecialNotification->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
 	LevelUpNotification->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
 
 	Level2->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
 
-	LootBagBG->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
-	GoldLootBagIcon->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
-	GoldValueText->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
-	CloseButton->SetVisibility( ESlateVisibility::Hidden );
+	InventoryIconID.SetNum( 8 );
 
 	for ( int i = 0; i < CoolDownRates.Num(); ++i )
 	{
@@ -100,9 +99,9 @@ void UUIParent::LootCollected( int value )
 {	
 	GoldValue = value;
 	GoldValueText->SetText( FText::AsCultureInvariant( FString::FromInt( GoldValue ) ) );
-	LootBagBG->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kFullValue ) );
-	GoldLootBagIcon->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kFullValue ) );
-	GoldValueText->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kFullValue ) );
+	LootBagBG->SetVisibility( ESlateVisibility::Visible );
+	GoldLootBagIcon->SetVisibility( ESlateVisibility::Visible );
+	GoldValueText->SetVisibility( ESlateVisibility::Visible );
 	CloseButton->SetVisibility( ESlateVisibility::Visible );
 	
 	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
@@ -114,13 +113,45 @@ void UUIParent::CloseLootBag()
 	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = false;
 	GetWorld()->GetFirstPlayerController()->SetPause( false );
 
-	LootBagBG->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
-	GoldLootBagIcon->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
-	GoldValueText->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
+	LootBagBG->SetVisibility( ESlateVisibility::Hidden );
+	GoldLootBagIcon->SetVisibility( ESlateVisibility::Hidden );
+	GoldValueText->SetVisibility( ESlateVisibility::Hidden );
 	CloseButton->SetVisibility( ESlateVisibility::Hidden );
 
 	TotalGold += GoldValue;
 	TotalGoldText->SetText( FText::AsCultureInvariant( FString::FromInt( TotalGold ) ) );
+}
+
+void UUIParent::ShowInventory()
+{
+	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
+
+	InventoryBG->SetVisibility( ESlateVisibility::Visible );
+	CloseInventoryButton->SetVisibility( ESlateVisibility::Visible );
+	InventoryIcon1->SetVisibility( ESlateVisibility::Visible );
+	InventoryIcon2->SetVisibility( ESlateVisibility::Visible );
+	InventoryIcon3->SetVisibility( ESlateVisibility::Visible );
+	InventoryIcon4->SetVisibility( ESlateVisibility::Visible );
+	InventoryIcon5->SetVisibility( ESlateVisibility::Visible );
+	InventoryIcon6->SetVisibility( ESlateVisibility::Visible );
+	InventoryIcon7->SetVisibility( ESlateVisibility::Visible );
+	InventoryIcon8->SetVisibility( ESlateVisibility::Visible );
+}
+
+void UUIParent::CloseInventory()
+{
+	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = false;
+
+	InventoryBG->SetVisibility( ESlateVisibility::Hidden );
+	CloseInventoryButton->SetVisibility( ESlateVisibility::Hidden );
+	InventoryIcon1->SetVisibility( ESlateVisibility::Hidden );
+	InventoryIcon2->SetVisibility( ESlateVisibility::Hidden );
+	InventoryIcon3->SetVisibility( ESlateVisibility::Hidden );
+	InventoryIcon4->SetVisibility( ESlateVisibility::Hidden );
+	InventoryIcon5->SetVisibility( ESlateVisibility::Hidden );
+	InventoryIcon6->SetVisibility( ESlateVisibility::Hidden );
+	InventoryIcon7->SetVisibility( ESlateVisibility::Hidden );
+	InventoryIcon8->SetVisibility( ESlateVisibility::Hidden );
 }
 
 void UUIParent::AbilityCooldown( EAbilities ability )
@@ -278,6 +309,65 @@ UProgressBar* UUIParent::GetAbility( int index )
 	return ability;
 }
 
+UImage* UUIParent::GetBagSlot( int index )
+{
+	UImage* slot = nullptr;
+
+	switch ( index )
+	{
+		 case 0:
+			 slot = InventoryIcon1;
+			 break;
+		 case 1:
+			 slot = InventoryIcon2;
+			 break;
+		 case 2:
+			 slot = InventoryIcon3;
+			 break;
+		 case 3:
+			 slot = InventoryIcon4;
+			 break;
+		 case 4:
+			 slot = InventoryIcon5;
+			 break;
+		 case 5:
+			 slot = InventoryIcon6;
+			 break;
+		 case 6:
+			 slot = InventoryIcon7;
+			 break;
+		 case 7:
+			 slot = InventoryIcon8;
+			 break;
+	}
+
+	return slot;
+}
+
+UTexture2D* UUIParent::GetBagTexture( int id )
+{
+	UTexture2D* item = nullptr;
+	switch ( id )
+	{
+		case 0:
+			item = nullptr;
+			break;
+		case 1:
+			item = Key;
+			break;
+		case 2:
+			item = Box;
+			break;
+		case 3:
+			item = Wood;
+			break;
+		default:
+			break;
+	}
+
+	return item;
+}
+
 void UUIParent::PickUpCollected( EStats stats, float value )
 {
 	if ( stats == EStats::Health )
@@ -304,6 +394,29 @@ void UUIParent::PickUpCollected( EStats stats, float value )
 
 		SpecialBar->SetPercent( percent );
 	}
+}
+
+void UUIParent::ItemCollected( int value )
+{
+	for ( auto item : InventoryIconID )
+	{
+		if ( item == 0 )
+		{
+			GetBagSlot( item )->SetBrushFromTexture( GetBagTexture( value ) );
+			item = value;
+			return;
+		}
+	}
+
+	//for ( int i = 0; i < 7; ++i )
+	//{
+	//	if ( InventoryIconID[i] == 0 )
+	//	{
+	//		GetBagSlot( i )->SetBrushFromTexture( GetBagTexture( value ) );
+	//		InventoryIconID[i] = value;
+	//		return;
+	//	}
+	//}
 }
 
 void UUIParent::GainXP( float value )

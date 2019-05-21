@@ -15,7 +15,10 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FLootBagDelegate, int, value );
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FActivateDelegate, EAbilities, ability );
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FStopDelegate, EAbilities, ability );
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FAvailabilityDelegate, int, ability );
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FItemDelegate, int, id );	 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE( FSaveDelegate );
+DECLARE_DYNAMIC_MULTICAST_DELEGATE( FInventoryDelegate );
+DECLARE_DYNAMIC_MULTICAST_DELEGATE( FSelectedCharacterDelegate );
 
 UCLASS(minimalapi)
 class AAce_LightningGameMode : public AGameModeBase
@@ -56,9 +59,21 @@ public:
 	UPROPERTY( BlueprintAssignable, Category = Event )
 	FAvailabilityDelegate					AvailablityEvent;
 
+	// delegate for checking what item was picked up
+	UPROPERTY( BlueprintAssignable, Category = Event )
+	FItemDelegate							ItemEvent;
+
 	// delegate for saving the game
 	UPROPERTY( BlueprintAssignable, Category = Event )
 	FSaveDelegate							SaveEvent;
+
+	// delegate for the inventory
+	UPROPERTY( BlueprintAssignable, Category = Event )
+	FInventoryDelegate						InventoryEvent;
+
+	// delegate for the inventory
+	UPROPERTY( BlueprintAssignable, Category = Event )
+	FSelectedCharacterDelegate				ChosenCharacterEvent;
 
 	// subclass of userwidget that displays the character select screen
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = stats )
@@ -88,9 +103,18 @@ public:
 	// function to broadcast ability availability event
 	UFUNCTION()
 	void									AbilityAvailable( int ability );
+	// function to broadcast item pick up event
+	UFUNCTION()
+	void									ItemCollected( int id );
 	// function to broadcast save event
 	UFUNCTION()
 	void									SaveGame();
+	// function to broadcast inventory event
+	UFUNCTION()
+	void									ShowInventory();
+	// function to broadcast chosen character event
+	UFUNCTION()
+	void									StartGame();
 
 private:
 	// Called when the game starts or when spawned

@@ -90,6 +90,7 @@ protected:
 	virtual void								Ability1();
 	virtual void								Ability2();
 	void										SaveGame();
+	void										ShowInventory();
 
 	// Delegate function for when a pickup is collected
 	UFUNCTION()

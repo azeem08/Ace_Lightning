@@ -79,7 +79,22 @@ void AAce_LightningGameMode::AbilityAvailable( int ability )
 	AvailablityEvent.Broadcast( ability );
 }
 
+void AAce_LightningGameMode::ItemCollected( int id )
+{
+	ItemEvent.Broadcast( id );
+}
+
 void AAce_LightningGameMode::SaveGame()
 {
 	SaveEvent.Broadcast();
+}
+
+void AAce_LightningGameMode::ShowInventory()
+{
+	InventoryEvent.Broadcast();
+}
+
+void AAce_LightningGameMode::StartGame()
+{
+	ChosenCharacterEvent.Broadcast();
 }

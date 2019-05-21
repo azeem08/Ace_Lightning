@@ -15,6 +15,17 @@ class ACE_LIGHTNING_API UUIParent : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
+	 // Icon for picked up key
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI )
+	class UTexture2D*				Key;
+	 // Icon for picked up box
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI )
+	class UTexture2D*				Box;
+	 // Icon for picked up wood
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI )
+	class UTexture2D*				Wood;
+
 private:
 	// public variables that are bound to the widget blueprint
 	// this allows it to be changed anywhere in code
@@ -60,7 +71,37 @@ private:
 	// button to close the loot bag
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
 	class UButton*					CloseButton;
-	// A bunch of floats for each ability's cool down progress
+	// Image for the background of the inventory
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UImage*					InventoryBG;
+	// button to close the inventory
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UButton*					CloseInventoryButton;
+	// Image for the inventory icon
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UImage*					InventoryIcon1;
+	// Image for the inventory icon
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UImage*					InventoryIcon2;
+	// Image for the inventory icon
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UImage*					InventoryIcon3;
+	// Image for the inventory icon
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UImage*					InventoryIcon4;
+	// Image for the inventory icon
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UImage*					InventoryIcon5;
+	// Image for the inventory icon
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UImage*					InventoryIcon6;
+	// Image for the inventory icon
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UImage*					InventoryIcon7;
+	// Image for the inventory icon
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UImage*					InventoryIcon8;
+	// A bunch of progressbars for each ability's cool down progress
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
 	class UProgressBar*				Ability1;
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
@@ -99,10 +140,15 @@ private:
 	// Updates the UI with data from the save data
 	void							LoadGame();
 	class UProgressBar*				GetAbility( int index );
+	class UImage*					GetBagSlot( int index );
+	class UTexture2D*				GetBagTexture( int id );
 
 	// Delegate function for when a pickup is collected
 	UFUNCTION()
 	void							PickUpCollected( EStats stats, float value );
+	// Delegate function for when a item is collected
+	UFUNCTION()
+	void							ItemCollected( int value );
 	// Delegate function for when XP is gained
 	UFUNCTION()
 	void							GainXP( float value );
@@ -115,6 +161,12 @@ private:
 	// Hides the loot bag 
 	UFUNCTION()
 	void							CloseLootBag();
+	// Delegate function to show the inventory
+	UFUNCTION()
+	void							ShowInventory();
+	// Hides the inventory 
+	UFUNCTION()
+	void							CloseInventory();
 	// Delegate function to manage ability cooldown
 	UFUNCTION()
 	void							AbilityCooldown( EAbilities ability );
@@ -137,6 +189,8 @@ private:
 	bool							bFoundPlayer;
 	// a float to track the amount of xp needed to level up
 	float							Max_XP;
+	// an array of id's for inventory objects
+	TArray<int>						InventoryIconID;
 	// a int that needs to be converted into an FText
 	int								PlayerLevel;
 	// how much gold the player has

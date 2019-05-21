@@ -23,7 +23,7 @@ public:
 	// Sets default values for this actor's properties
 	APickUp();
 
-	// The actor that the trigger volume is looking for
+	// the type of pickup
 	UPROPERTY( Category = Effect, EditAnywhere )
 	EPickUpType									CurrentType;
 
@@ -46,29 +46,8 @@ private:
 	UFUNCTION()
 	void										OnOverlapBegin( AActor * overlappedActor, AActor * otherActor );
 
-	// Template that takes an actor and returns a pointer to the correct character type
-	template <class PlayerType>
-	PlayerType* GetPlayerType( PlayerType* a )
-	{
-		AActor* actor = a;
-		PlayerType* currentType = nullptr;
-
-		if ( actor->IsA( AMagicCharacter::StaticClass() ) )
-		{
-			currentType = Cast<AMagicCharacter>( a );
-		}
-		else if ( actor->IsA( AMeleeCharacter::StaticClass() ) )
-		{
-			currentType = Cast<AMeleeCharacter>( a );
-		}
-
-		return currentType;
-	}
-
 	// pointer to messaging system
 	class AAce_LightningGameMode*				GameMode;
-	// The actor that the trigger volume is looking for
-	AActor*										TargetActor;
 	// The players stat which should change
 	EStats										SType;
 };

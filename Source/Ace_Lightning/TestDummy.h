@@ -17,7 +17,6 @@ class ACE_LIGHTNING_API ATestDummy : public ACharacter
 public:
 	// Sets default values for this character's properties
 												ATestDummy();
-
 	// Health value
 	UPROPERTY( Category = Stats, EditAnywhere )
 	float										CurrentHealth;

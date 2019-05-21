@@ -14,8 +14,7 @@ class ACE_LIGHTNING_API ALootDrop : public AActor
 
 public:
 	// Sets default values for this actor's properties
-	ALootDrop();
-
+												ALootDrop();
 	// pickup VFX
 	UPROPERTY( Category = Item, EditAnywhere )
 	class UParticleSystemComponent*				FXItem;

@@ -229,6 +229,11 @@ void AAce_LightningCharacter::SaveGame()
 	GameMode->SaveGame();
 }
 
+void AAce_LightningCharacter::ShowInventory()
+{
+	GameMode->ShowInventory();
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -239,6 +244,7 @@ void AAce_LightningCharacter::SetupPlayerInputComponent(class UInputComponent* P
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAction( "Save", IE_Pressed, this, &AAce_LightningCharacter::SaveGame );
+	PlayerInputComponent->BindAction( "Inventory", IE_Pressed, this, &AAce_LightningCharacter::ShowInventory );
 	PlayerInputComponent->BindAction( "Ability1", IE_Pressed, this, &AAce_LightningCharacter::Ability1 );
 	PlayerInputComponent->BindAction( "Ability2", IE_Pressed, this, &AAce_LightningCharacter::Ability2 );
 
