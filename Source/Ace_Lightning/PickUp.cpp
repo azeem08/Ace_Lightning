@@ -53,6 +53,16 @@ void APickUp::BeginPlay()
 	}
 }
 
+void APickUp::EndPlay( EEndPlayReason::Type EndPlayReason )
+{
+	Super::EndPlay( EndPlayReason );
+
+	if ( EndPlayReason == EEndPlayReason::Quit )
+	{
+		OnActorBeginOverlap.AddDynamic( this, &APickUp::OnOverlapBegin );
+	}
+}
+
 void APickUp::OnOverlapBegin( AActor* overlappedActor, AActor* otherActor )
 {
 	// Checks if the object is the target

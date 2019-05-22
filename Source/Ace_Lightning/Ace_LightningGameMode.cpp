@@ -39,6 +39,16 @@ void AAce_LightningGameMode::BeginPlay()
 	}
 }
 
+void AAce_LightningGameMode::EndPlay( EEndPlayReason::Type EndPlayReason )
+{
+	Super::EndPlay( EndPlayReason );
+
+	if ( EndPlayReason == EEndPlayReason::Quit )
+	{
+		StopCasting( EAbilities::End );
+	}
+}
+
 void AAce_LightningGameMode::PickUpCollected( EStats stats, float value )
 {
 	PickupEvent.Broadcast( stats, value );

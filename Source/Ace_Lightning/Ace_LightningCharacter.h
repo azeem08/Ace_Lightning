@@ -86,6 +86,7 @@ protected:
 	void LookUpAtRate(float Rate);
 
 	virtual void								BeginPlay();
+	virtual void								EndPlay( EEndPlayReason::Type EndPlayReason );
 	virtual void								Tick( float DeltaTime );
 	virtual void								Ability1();
 	virtual void								Ability2();

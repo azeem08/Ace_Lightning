@@ -36,6 +36,16 @@ void AItemPickUp::BeginPlay()
 	}
 }
 
+void AItemPickUp::EndPlay( EEndPlayReason::Type EndPlayReason )
+{
+	Super::EndPlay( EndPlayReason );
+
+	if ( EndPlayReason == EEndPlayReason::Quit )
+	{
+		OnActorBeginOverlap.RemoveDynamic( this, &AItemPickUp::OnOverlapBegin );
+	}
+}
+
 void AItemPickUp::OnOverlapBegin( AActor * overlappedActor, AActor * otherActor )
 {
 	// Checks if the object is the target

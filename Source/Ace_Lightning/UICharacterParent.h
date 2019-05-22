@@ -46,6 +46,7 @@ private:
 	TSubclassOf<class AMeleeCharacter>		BP_MeleeCharacter;
 
 	virtual void							NativeConstruct() override;
+	virtual void							NativeDestruct() override;
 
 	UFUNCTION()
 	void									LoadMelee();

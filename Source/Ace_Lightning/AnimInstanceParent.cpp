@@ -152,4 +152,10 @@ void UAnimInstanceParent::StopAnimating( EAbilities ability )
 	{
 		ActivateAbility2( false );
 	}
+
+	if ( ability == EAbilities::End )
+	{
+		GameMode->Event_ActivateAbility.RemoveDynamic( this, &UAnimInstanceParent::StartAnimating );
+		GameMode->DeactivateEvent.RemoveDynamic( this, &UAnimInstanceParent::StopAnimating );
+	}
 }

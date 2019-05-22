@@ -133,6 +133,7 @@ private:
 
 	virtual void					NativeConstruct() override;
 	virtual void					NativeTick( const FGeometry& MyGeometry, float DeltaTime ) override;
+	virtual void					NativeDestruct() override;
 
 	// Slowly changes the alpha back to 0
 	void							NoSpecial();

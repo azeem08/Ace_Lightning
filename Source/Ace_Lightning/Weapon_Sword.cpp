@@ -39,6 +39,17 @@ void AWeapon_Sword::BeginPlay()
 	SetActorEnableCollision( false );
 }
 
+void AWeapon_Sword::EndPlay( EEndPlayReason::Type EndPlayReason )
+{
+	Super::EndPlay( EndPlayReason );
+
+	if ( EndPlayReason == EEndPlayReason::Quit )
+	{
+		GameMode->Event_ActivateAbility.RemoveDynamic( this, &AWeapon_Sword::AbilityActive );
+		GameMode->DeactivateEvent.RemoveDynamic( this, &AWeapon_Sword::DeactiveAbility );
+	}
+}
+
 void AWeapon_Sword::AbilityActive( EAbilities ability )
 {
 	if ( ability == EAbilities::First )

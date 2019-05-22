@@ -36,6 +36,15 @@ void UUICharacterParent::NativeConstruct()
 	ResetButton->OnClicked.AddDynamic( this, &UUICharacterParent::ClearSave );
 }
 
+void UUICharacterParent::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	MeleeButton->OnClicked.RemoveDynamic( this, &UUICharacterParent::LoadMelee );
+	MagicButton->OnClicked.RemoveDynamic( this, &UUICharacterParent::LoadMagic );
+	ResetButton->OnClicked.RemoveDynamic( this, &UUICharacterParent::ClearSave );
+}
+
 void UUICharacterParent::LoadMelee()
 {
 	// Spawns a melee character and possess it

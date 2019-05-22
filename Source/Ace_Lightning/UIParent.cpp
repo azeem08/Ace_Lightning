@@ -88,6 +88,29 @@ void UUIParent::NativeTick( const FGeometry &MyGeometry, float DeltaTime )
 	}
 }
 
+void UUIParent::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	if ( GetWorld()->GetTimerManager().IsTimerActive( PopUpTimer ) )
+	{
+		GetWorld()->GetTimerManager().ClearTimer( PopUpTimer );
+	}
+
+	CloseButton->OnClicked.RemoveDynamic( this, &UUIParent::CloseLootBag );
+	CloseInventoryButton->OnClicked.RemoveDynamic( this, &UUIParent::CloseInventory );
+
+	GameMode->PickupEvent.RemoveDynamic( this, &UUIParent::PickUpCollected );
+	GameMode->XP_Event.RemoveDynamic( this, &UUIParent::GainXP );
+	GameMode->PopUpEvent.RemoveDynamic( this, &UUIParent::OutOfSpecial );
+	GameMode->LootBagEvent.RemoveDynamic( this, &UUIParent::LootCollected );
+	GameMode->Event_ActivateAbility.RemoveDynamic( this, &UUIParent::AbilityCooldown );
+	GameMode->SaveEvent.RemoveDynamic( this, &UUIParent::SaveGame );
+	GameMode->QuestEvent.RemoveDynamic( this, &UUIParent::QuestUpdate );
+	GameMode->InventoryEvent.RemoveDynamic( this, &UUIParent::ShowInventory );
+	GameMode->ItemEvent.RemoveDynamic( this, &UUIParent::ItemCollected );
+}
+
 void UUIParent::OutOfSpecial( EStats stats )
 {
 	specialAlpha = kFullValue;

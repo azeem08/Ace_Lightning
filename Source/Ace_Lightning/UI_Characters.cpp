@@ -56,6 +56,16 @@ void AUI_Characters::Tick(float DeltaTime)
 
 }
 
+void AUI_Characters::EndPlay( EEndPlayReason::Type EndPlayReason )
+{
+	Super::EndPlay( EndPlayReason );
+
+	if ( EndPlayReason == EEndPlayReason::Quit )
+	{
+		GameMode->ChosenCharacterEvent.RemoveDynamic( this, &AUI_Characters::CharacterChosen );
+	}
+}
+
 void AUI_Characters::CharacterChosen()
 {
 	Destroy();

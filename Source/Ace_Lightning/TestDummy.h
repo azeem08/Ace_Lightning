@@ -52,9 +52,9 @@ private:
 	virtual void								BeginPlay() override;
 	// Called every frame
 	virtual void								Tick( float DeltaTime ) override;
+	virtual void								EndPlay( EEndPlayReason::Type EndPlayReason ) override;
 	UFUNCTION()
 	void										OnOverlapBegin( AActor * overlappedActor, AActor * otherActor );
-	void										Dead();
 	UFUNCTION()
 	void										OnHearNoise( APawn *OtherActor, const FVector &Location, float Volume );
 	UFUNCTION()
@@ -62,6 +62,8 @@ private:
 	// Delegate function for when an ability is not active
 	UFUNCTION()
 	void										DeactiveAbility( EAbilities ability );
+	
+	void										Dead();
 
 	// Template that takes an actor and returns a pointer to the correct character type
 	template <class ObjectType>

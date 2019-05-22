@@ -174,6 +174,18 @@ void AAce_LightningCharacter::BeginPlay()
 	}
 }
 
+void AAce_LightningCharacter::EndPlay( EEndPlayReason::Type EndPlayReason )
+{
+	Super::EndPlay( EndPlayReason );
+
+	if ( EndPlayReason == EEndPlayReason::Quit )
+	{
+		GameMode->PickupEvent.RemoveDynamic( this, &AAce_LightningCharacter::PickUpCollected );
+		GameMode->AvailablityEvent.RemoveDynamic( this, &AAce_LightningCharacter::AbilityAvailable );
+		GameMode->LootBagEvent.RemoveDynamic( this, &AAce_LightningCharacter::LootBagCollected );
+	}
+}
+
 void AAce_LightningCharacter::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );

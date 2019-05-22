@@ -62,6 +62,16 @@ void ALootDrop::Tick( float DeltaTime )
 
 }
 
+void ALootDrop::EndPlay( EEndPlayReason::Type EndPlayReason )
+{
+	Super::EndPlay( EndPlayReason );
+
+	if ( EndPlayReason == EEndPlayReason::Quit )
+	{
+		OnActorBeginOverlap.RemoveDynamic( this, &ALootDrop::OnOverlapBegin );
+	}
+}
+
 void ALootDrop::OnOverlapBegin( AActor * overlappedActor, AActor * otherActor )
 {
 	// Checks if the object is the target

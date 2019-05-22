@@ -42,6 +42,7 @@ public:
 private:
 	// Called when the game starts or when spawned
 	virtual void								BeginPlay() override;
+	virtual void								EndPlay( EEndPlayReason::Type EndPlayReason ) override;
 
 	UFUNCTION()
 	void										OnOverlapBegin( AActor * overlappedActor, AActor * otherActor );

@@ -22,15 +22,13 @@ public:
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = Widget )
 	TSubclassOf<class UUserWidget>			WidgetMelee;
 
-	/** Primary draw call for the HUD */
-	virtual void							DrawHUD() override;
-
-protected:
-	virtual void							BeginPlay() override;
-	void									Initialize();
-
 private:
 	virtual void							Tick( float DeltaTime ) override;
+	/** Primary draw call for the HUD */
+	virtual void							DrawHUD() override;
+	virtual void							BeginPlay() override;
+
+	void									Initialize();
 
 	// Template that takes an actor and returns a pointer to the correct character type
 	template <class PlayerType>

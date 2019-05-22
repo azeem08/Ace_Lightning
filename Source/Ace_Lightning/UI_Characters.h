@@ -35,6 +35,7 @@ private:
 	virtual void							BeginPlay() override;
 	// Called every frame
 	virtual void							Tick(float DeltaTime) override;
+	virtual void							EndPlay( EEndPlayReason::Type EndPlayReason ) override;
 
 	// Delegate function for when a character is chosen
 	UFUNCTION()

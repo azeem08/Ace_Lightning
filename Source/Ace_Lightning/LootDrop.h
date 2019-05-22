@@ -31,13 +31,13 @@ public:
 	UPROPERTY( Category = Item, EditAnywhere )
 	int											GoldValue;
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void								BeginPlay() override;
 
 private:
+	// Called when the game starts or when spawned
+	virtual void								BeginPlay() override;
 	// Called every frame
 	virtual void								Tick( float DeltaTime ) override;
+	virtual void								EndPlay( EEndPlayReason::Type EndPlayReason ) override;
 
 	UFUNCTION()
 	void										OnOverlapBegin( AActor * overlappedActor, AActor * otherActor );

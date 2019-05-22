@@ -32,7 +32,8 @@ enum class EAbilities
 	Eighth,
 	Nineth,
 	Tenth,
-	Jumping
+	Jumping,
+	End
 };
 
 class ACE_LIGHTNING_API MessageClass

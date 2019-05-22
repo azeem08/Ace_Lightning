@@ -100,6 +100,19 @@ void ATestDummy::Tick( float DeltaTime )
 	}
 }
 
+void ATestDummy::EndPlay( EEndPlayReason::Type EndPlayReason )
+{
+	Super::EndPlay( EndPlayReason );
+
+	if ( EndPlayReason == EEndPlayReason::Quit )
+	{
+		OnActorBeginOverlap.RemoveDynamic( this, &ATestDummy::OnOverlapBegin );
+		PawnSensor->OnHearNoise.RemoveDynamic( this, &ATestDummy::OnHearNoise );
+		PawnSensor->OnSeePawn.RemoveDynamic( this, &ATestDummy::OnSeePawn );
+		GameMode->DeactivateEvent.RemoveDynamic( this, &ATestDummy::DeactiveAbility );
+	}
+}
+
 void ATestDummy::OnOverlapBegin( AActor* overlappedActor, AActor* otherActor )
 {
 	// Checks if the object is the target
