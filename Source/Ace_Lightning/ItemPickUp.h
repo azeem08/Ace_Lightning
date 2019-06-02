@@ -16,16 +16,20 @@ public:
 	AItemPickUp();
 
 	// the type of item
-	UPROPERTY( Category = Effect, EditAnywhere )
+	UPROPERTY( Category = PickUp, EditAnywhere )
 	int											CurrentType;
 
 	// item mesh
-	UPROPERTY( Category = Effect, EditAnywhere )
+	UPROPERTY( Category = PickUp, EditAnywhere )
 	class UStaticMeshComponent*					Item;
 
 	// trigger volume for item
-	UPROPERTY( Category = Effect, EditAnywhere )
+	UPROPERTY( Category = PickUp, EditAnywhere )
 	class UBoxComponent*						CollisionVolume;
+
+	// particle system to highlight object
+	UPROPERTY( Category = PickUp, EditAnywhere )
+	class UParticleSystemComponent*				FXPickUp;
 
 private:
 	// Called when the game starts or when spawned
@@ -33,7 +37,11 @@ private:
 	virtual void								EndPlay( EEndPlayReason::Type EndPlayReason ) override;
 	UFUNCTION()
 	void										OnOverlapBegin( AActor * overlappedActor, AActor * otherActor );
+	// Delegate function to check if the item can be collected
+	UFUNCTION()
+	void										InventoryAvailable( bool available );
 
 	// pointer to messaging system
 	class AAce_LightningGameMode*				GameMode;
+	bool										bIsCollectable;
 };

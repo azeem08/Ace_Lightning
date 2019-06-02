@@ -37,15 +37,11 @@ void ACharacterHUD::Initialize()
 	// Logs an arror if there is no widget class, widget object or parent pointer
 	if ( !Player )
 	{
-		UE_LOG( LogTemp, Warning, TEXT( "No player found" ) );
-
 		bFoundPlayer = false;
 	}
 	else
 	{
 		bFoundPlayer = true;
-
-		UE_LOG( LogTemp, Warning, TEXT( "player has been found" ) );
 
 		if ( !WidgetMagic || !WidgetMelee )
 		{

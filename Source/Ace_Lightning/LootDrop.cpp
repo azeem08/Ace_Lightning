@@ -80,7 +80,7 @@ void ALootDrop::OnOverlapBegin( AActor * overlappedActor, AActor * otherActor )
 		if ( otherActor->IsA( AAce_LightningCharacter::StaticClass() ) )
 		{
 			// Sends a message that a pickup has been collected and destroys the pickup
-			GameMode->LootBagCollected( GoldValue );
+			GameMode->LootBagCollected( GoldValue, 1 );
 			FXItem->Deactivate();
 			FXItem->KillParticlesForced();
 			Destroy();

@@ -68,6 +68,12 @@ private:
 	// how much gold is in the loot bag
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
 	class UTextBlock*				GoldValueText;
+	// Image for the item in the loot bag
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UImage*					LootItem;
+	// Description of the item in the loot bag
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UTextBlock*				LootDescription;
 	// button to close the loot bag
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
 	class UButton*					CloseButton;
@@ -125,6 +131,9 @@ private:
 	// a list of cooldown rates for each ability
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
 	TArray<float>					CoolDownRates;
+	// inventoy full notification
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
+	class UTextBlock*				InventoryNotification;
 	// Text to represent quests
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = UI, meta = ( BindWidget, AllowPrivateAccess = "True" ) )
 	FString							QuestTitle;
@@ -138,11 +147,13 @@ private:
 	// Slowly changes the alpha back to 0
 	void							NoSpecial();
 	void							LevelUp();
+	void							BagFull();
 	// Updates the UI with data from the save data
 	void							LoadGame();
 	class UProgressBar*				GetAbility( int index );
 	class UImage*					GetBagSlot( int index );
 	class UTexture2D*				GetBagTexture( int id );
+	void							SetLootDescription( int id );
 
 	// Delegate function for when a pickup is collected
 	UFUNCTION()
@@ -158,7 +169,7 @@ private:
 	void							OutOfSpecial( EStats stats );
 	// Delegate function to update the total gold count
 	UFUNCTION()
-	void							LootCollected( int value );
+	void							LootCollected( int gold, int item );
 	// Hides the loot bag 
 	UFUNCTION()
 	void							CloseLootBag();

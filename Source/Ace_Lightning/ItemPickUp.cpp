@@ -6,17 +6,22 @@
 #include "Ace_LightningGameMode.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 AItemPickUp::AItemPickUp()
 	: CollisionVolume	( nullptr )
 	, GameMode			( nullptr )
+	, bIsCollectable	( true )
 {
 	CollisionVolume = CreateDefaultSubobject<UBoxComponent>( "Trigger Volume" );
 	RootComponent = CollisionVolume;
 
 	Item = CreateDefaultSubobject<UStaticMeshComponent>( "Mesh" );
 	Item->SetupAttachment( RootComponent );
+
+	FXPickUp = CreateDefaultSubobject<UParticleSystemComponent>( TEXT( "VFX pick up" ) );
+	FXPickUp->SetupAttachment( RootComponent );
 }
 
 // Called when the game starts or when spawned
@@ -34,6 +39,11 @@ void AItemPickUp::BeginPlay()
 	{
 		UE_LOG( LogTemp, Error, TEXT( "No pointer to the game mode." ) );
 	}
+	else
+	{
+		GameMode->InventorySlotEvent.AddDynamic( this, &AItemPickUp::InventoryAvailable );
+		bIsCollectable = true;
+	}
 }
 
 void AItemPickUp::EndPlay( EEndPlayReason::Type EndPlayReason )
@@ -43,6 +53,7 @@ void AItemPickUp::EndPlay( EEndPlayReason::Type EndPlayReason )
 	if ( EndPlayReason == EEndPlayReason::Quit )
 	{
 		OnActorBeginOverlap.RemoveDynamic( this, &AItemPickUp::OnOverlapBegin );
+		GameMode->InventorySlotEvent.RemoveDynamic( this, &AItemPickUp::InventoryAvailable );
 	}
 }
 
@@ -53,7 +64,16 @@ void AItemPickUp::OnOverlapBegin( AActor * overlappedActor, AActor * otherActor 
 	{
 		// Sends a message that a pickup has been collected and destroys the pickup
 		GameMode->ItemCollected( CurrentType );
-		Destroy();
+
+		if ( bIsCollectable )
+		{
+			Destroy();
+		}
 	}
+}
+
+void AItemPickUp::InventoryAvailable( bool available )
+{
+	bIsCollectable = available;
 }
 

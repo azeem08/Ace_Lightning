@@ -32,6 +32,7 @@ void UUIParent::NativeConstruct()
 
 	SpecialNotification->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
 	LevelUpNotification->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
+	InventoryNotification->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
 
 	Level2->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kEmptyValue ) );
 
@@ -118,13 +119,18 @@ void UUIParent::OutOfSpecial( EStats stats )
 	GetWorld()->GetTimerManager().SetTimer( PopUpTimer, this, &UUIParent::NoSpecial, kAnimationTime, true );
 }
 
-void UUIParent::LootCollected( int value )
+void UUIParent::LootCollected( int gold, int item )
 {	
-	GoldValue = value;
+	GoldValue = gold;
 	GoldValueText->SetText( FText::AsCultureInvariant( FString::FromInt( GoldValue ) ) );
+	LootItem->SetBrushFromTexture( GetBagTexture( item ) );
+	SetLootDescription( item );
+
 	LootBagBG->SetVisibility( ESlateVisibility::Visible );
 	GoldLootBagIcon->SetVisibility( ESlateVisibility::Visible );
 	GoldValueText->SetVisibility( ESlateVisibility::Visible );
+	LootItem->SetVisibility( ESlateVisibility::Visible );
+	LootDescription->SetVisibility( ESlateVisibility::Visible );
 	CloseButton->SetVisibility( ESlateVisibility::Visible );
 	
 	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
@@ -139,6 +145,8 @@ void UUIParent::CloseLootBag()
 	LootBagBG->SetVisibility( ESlateVisibility::Hidden );
 	GoldLootBagIcon->SetVisibility( ESlateVisibility::Hidden );
 	GoldValueText->SetVisibility( ESlateVisibility::Hidden );
+	LootItem->SetVisibility( ESlateVisibility::Hidden );
+	LootDescription->SetVisibility( ESlateVisibility::Hidden );
 	CloseButton->SetVisibility( ESlateVisibility::Hidden );
 
 	TotalGold += GoldValue;
@@ -240,6 +248,21 @@ void UUIParent::LevelUp()
 		newAlpha -= AlphaRate;
 		LevelUpNotification->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, newAlpha ) );
 		Level2->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, newAlpha ) );
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer( PopUpTimer );
+	}
+}
+
+void UUIParent::BagFull()
+{
+	float newAlpha = InventoryNotification->ColorAndOpacity.GetSpecifiedColor().A;
+
+	if ( newAlpha > kEmptyValue )
+	{
+		newAlpha -= AlphaRate;
+		InventoryNotification->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, newAlpha ) );
 	}
 	else
 	{
@@ -391,6 +414,27 @@ UTexture2D* UUIParent::GetBagTexture( int id )
 	return item;
 }
 
+void UUIParent::SetLootDescription( int id )
+{
+	switch ( id )
+	{
+		case 0:
+			LootDescription->SetText( FText::AsCultureInvariant( "" ) );
+			break;
+		case 1:
+			LootDescription->SetText( FText::AsCultureInvariant( "Key" ) );
+			break;
+		case 2:
+			LootDescription->SetText( FText::AsCultureInvariant( "Box" ) );
+			break;
+		case 3:
+			LootDescription->SetText( FText::AsCultureInvariant( "Wood" ) );
+			break;
+		default:
+			break;
+	}
+}
+
 void UUIParent::PickUpCollected( EStats stats, float value )
 {
 	if ( stats == EStats::Health )
@@ -421,25 +465,23 @@ void UUIParent::PickUpCollected( EStats stats, float value )
 
 void UUIParent::ItemCollected( int value )
 {
-	for ( auto item : InventoryIconID )
+	for ( int i = 0; i < InventoryIconID.Num(); ++i )
 	{
-		if ( item == 0 )
+		if ( InventoryIconID[i] == 0 )
 		{
-			GetBagSlot( item )->SetBrushFromTexture( GetBagTexture( value ) );
-			item = value;
+			GetBagSlot( i )->SetBrushFromTexture( GetBagTexture( value ) );
+			InventoryIconID[i] = value;
 			return;
 		}
 	}
 
-	//for ( int i = 0; i < 7; ++i )
-	//{
-	//	if ( InventoryIconID[i] == 0 )
-	//	{
-	//		GetBagSlot( i )->SetBrushFromTexture( GetBagTexture( value ) );
-	//		InventoryIconID[i] = value;
-	//		return;
-	//	}
-	//}
+	if ( InventoryIconID.Last() != 0 )
+	{
+		GameMode->InventoryAvailable( false );
+		specialAlpha = kFullValue;
+		InventoryNotification->SetColorAndOpacity( FLinearColor( kFullValue, kFullValue, kFullValue, kFullValue ) );
+		GetWorld()->GetTimerManager().SetTimer( PopUpTimer, this, &UUIParent::BagFull, kAnimationTime, true );
+	}
 }
 
 void UUIParent::GainXP( float value )

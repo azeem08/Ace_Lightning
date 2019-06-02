@@ -383,7 +383,7 @@ void AAce_LightningCharacter::AbilityAvailable( int ability )
 	}
 }
 
-void AAce_LightningCharacter::LootBagCollected( int value )
+void AAce_LightningCharacter::LootBagCollected( int gold, int item )
 {
 	FXLootPickUp->Activate();
 }

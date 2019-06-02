@@ -9,13 +9,14 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams( FPickupDelegate, EStats, stats, float, value );
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams( FQuestDelegate, FString, title, FString, details );
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams( FLootBagDelegate, int, gold, int, item );
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FExperienceDelegate, float, value );
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FPopUpDelegate, EStats, stats );
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FLootBagDelegate, int, value );
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FActivateDelegate, EAbilities, ability );
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FStopDelegate, EAbilities, ability );
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FAvailabilityDelegate, int, ability );
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FItemDelegate, int, id );	 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FInventoryAvailableDelegate, bool, availability );
 DECLARE_DYNAMIC_MULTICAST_DELEGATE( FSaveDelegate );
 DECLARE_DYNAMIC_MULTICAST_DELEGATE( FInventoryDelegate );
 DECLARE_DYNAMIC_MULTICAST_DELEGATE( FSelectedCharacterDelegate );
@@ -71,9 +72,13 @@ public:
 	UPROPERTY( BlueprintAssignable, Category = Event )
 	FInventoryDelegate						InventoryEvent;
 
-	// delegate for the inventory
+	// delegate for the selected character
 	UPROPERTY( BlueprintAssignable, Category = Event )
 	FSelectedCharacterDelegate				ChosenCharacterEvent;
+
+	// delegate for the inventory slots
+	UPROPERTY( BlueprintAssignable, Category = Event )
+	FInventoryAvailableDelegate				InventorySlotEvent;
 
 	// subclass of userwidget that displays the character select screen
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = stats )
@@ -93,7 +98,7 @@ public:
 	void									TriggerNotification( EStats stats );
 	// function to broadcast loot bag event
 	UFUNCTION()
-	void									LootBagCollected( int value );
+	void									LootBagCollected( int gold, int item );
 	// function to broadcast activated event
 	UFUNCTION()
 	void									ActivateAbility( EAbilities ability );
@@ -103,6 +108,9 @@ public:
 	// function to broadcast ability availability event
 	UFUNCTION()
 	void									AbilityAvailable( int ability );
+	// function to broadcast inventory availability event
+	UFUNCTION()
+	void									InventoryAvailable( bool available );
 	// function to broadcast item pick up event
 	UFUNCTION()
 	void									ItemCollected( int id );

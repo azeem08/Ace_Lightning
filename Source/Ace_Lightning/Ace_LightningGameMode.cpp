@@ -69,9 +69,9 @@ void AAce_LightningGameMode::TriggerNotification( EStats stats )
 	PopUpEvent.Broadcast( stats );
 }
 
-void AAce_LightningGameMode::LootBagCollected( int value )
+void AAce_LightningGameMode::LootBagCollected( int gold, int item )
 {
-	LootBagEvent.Broadcast( value );
+	LootBagEvent.Broadcast( gold, item );
 }
 
 void AAce_LightningGameMode::ActivateAbility( EAbilities ability )
@@ -87,6 +87,11 @@ void AAce_LightningGameMode::StopCasting( EAbilities ability )
 void AAce_LightningGameMode::AbilityAvailable( int ability )
 {
 	AvailablityEvent.Broadcast( ability );
+}
+
+void AAce_LightningGameMode::InventoryAvailable( bool available )
+{
+	InventorySlotEvent.Broadcast( available );
 }
 
 void AAce_LightningGameMode::ItemCollected( int id )

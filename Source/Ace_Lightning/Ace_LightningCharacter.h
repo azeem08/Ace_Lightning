@@ -101,7 +101,7 @@ protected:
 	void										AbilityAvailable( int ability );
 	// Delegate function for when the loot bag is picked up
 	UFUNCTION()
-	void										LootBagCollected( int value );
+	void										LootBagCollected( int gold, int item );
 
 	// pointer to the game mode
 	class AAce_LightningGameMode*				GameMode;
